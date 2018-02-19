@@ -18,8 +18,3 @@
 - Interactive Components:
 	- Request url: url/slack/message_actions
 	- Options Load URL: url/slack/message_options (for Message Menus)
-
-
-Completer le doc sur le multi-threading.
-Gérer plusieurs users sur un meme channel.
-Push git
