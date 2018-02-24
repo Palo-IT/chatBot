@@ -25,16 +25,61 @@ for line in open("tokens.txt", "r").readlines():
         
 PORT = 3000
 app = Flask(__name__)    
+convs = {}
 
 #Functions
 #RTM client to send msgs, ie Slack client for Web API requests
 slack_client = SlackClient(SLACK_BOT_TOKEN)
 
-def sendMSG(channel, text, attachments = None):
-    if attachments == None:
-        slack_client.api_call("chat.postMessage", channel = channel, text=text)
+
+def handle_event(event_data):
+    #print(event_data)
+    author = event_data['event']['user']
+    message = event_data['event']['text']
+    channel = event_data['event']['channel']
+    time = event_data['event']['ts']
+    print(event_data)
+    """"""
+    
+    if channel not in convs.keys():
+        isPublic = int(privateOrNot(channel))
+        convs[channel] = dialogFlow.Dialog(channel, isPublic)
+
+    (answer, attachments) = convs[channel].newMSG(message, processTime(time), findMemberName(author))
+    #print(answer, attachments)
+    #(answer, attachments) = convs[channel].chooseAnswer()
+    sendMSG(event_data['event']['channel'], answer,author, int(privateOrNot(channel)) , attachments )    
+    return 1
+
+
+
+
+def sendMSG(channel, text, auteur , public,  attachments = None ):
+    if public == 0:
+        if attachments == None:
+            slack_client.api_call("chat.postMessage", channel = channel, text=text)
+        else:
+            slack_client.api_call("chat.postMessage", channel = channel, text=text, attachments=attachments)
     else:
-        slack_client.api_call("chat.postMessage", channel = channel, text=text, attachments=attachments)
+        if attachments == None:
+            slack_client.api_call("chat.postEphemeral", channel = channel, text=text , user= auteur)
+        else:
+            slack_client.api_call("chat.postEphemeral", channel = channel, text=text, user= auteur ,attachments=attachments)
+
+
+#Donne la liste de tout les channels utilisé par le user exepté ceux qui sont dans l onglet app
+def privateOrNot(channel):
+    listeChannel = [channel["id"] for channel in slack_client.api_call("channels.list")["channels"]]
+    if channel in listeChannel:
+        return True
+    return False
+
+def findMemberName(id):
+    return slack_client.api_call("users.info", user = id)["user"]["name"]	
+
+def processTime(ts):
+    return datetime.datetime.fromtimestamp(float(ts)).strftime('%Y-%m-%d %H:%M:%S')
+
 
 """
 #For rolling menu, precise options in menu_options (format dict or JSON)
@@ -56,15 +101,14 @@ def message_actions():
 
 def handle_action(action_data):
     # Check to see what the user's selection was and update the message
-    print(action_data)
     #idButton = action_data['actions'][0]["name"]
     choice = action_data["actions"][0]["value"]
     author = action_data['user']['id']
     channel = action_data['channel']['id']
-    time =  action_data['message_ts']   
+    time =  action_data['message_ts']
+    Public = int(privateOrNot(channel))
     (answer, attachments) = convs[channel].newMSG(choice, processTime(time), findMemberName(author))
-    print(answer, attachments)
-    sendMSG(channel, answer, attachments)    
+    sendMSG(channel, answer,author, Public, attachments )    
 
 #for listening for messages
 @app.route("/slack/events", methods=["POST"])
@@ -113,40 +157,11 @@ def listenerMSG():
                 handle_event(event_data)
     return "OK"
 
-def handle_event(event_data):
-    #print(event_data)
-    author = event_data['event']['user']
-    message = event_data['event']['text']
-    channel = event_data['event']['channel']
-    time = event_data['event']['ts']
-    """"""
-    
-    if channel not in convs.keys():
-        isPublic = int(privateOrNot(channel))
-        convs[channel] = dialogFlow.Dialog(channel, isPublic)
-    (answer, attachments) = convs[channel].newMSG(message, processTime(time), findMemberName(author))
-    #print(answer, attachments)
-    #(answer, attachments) = convs[channel].chooseAnswer()
-    sendMSG(channel, answer, attachments)    
-    return 1
 
-
-#Donne la liste de tout les channels utilisé par le user exepté ceux qui sont dans l onglet app
-def privateOrNot(channel):
-    listeChannel = [channel["id"] for channel in slack_client.api_call("channels.list")["channels"]]
-    if channel in listeChannel:
-        return True
-    return False
-
-def findMemberName(id):
-    return slack_client.api_call("users.info", user = id)["user"]["name"]	
-
-def processTime(ts):
-    return datetime.datetime.fromtimestamp(float(ts)).strftime('%Y-%m-%d %H:%M:%S')
 
 
 if __name__ == "__main__":
     print("Flask server running on {}".format(PORT))
     app.run(port = PORT)
-    convs = {}
+    
     #print(datetime.datetime.now)

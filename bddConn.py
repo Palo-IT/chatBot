@@ -137,7 +137,6 @@ def addRes(table, res):
     connexion.commit()
     connexion.close()
     return "Ajouté: {} a {}".format(res, table)   
-    
 def deleteRes(category, id):
     db = '{}\{}'.format(DBPATH, 'DBTAM.db')
     connexion = sqlite3.connect(db)

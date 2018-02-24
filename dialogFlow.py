@@ -59,24 +59,29 @@ class Dialog:
         if self.humeur == 0 and not self.publique :
             self.state = "waitingHumeur"
             self.humeur = "unknown"
+            print("1")
             return (boutons.button1[0], boutons.button1[1])  
         
         if self.humeur == 0 and  self.publique and self.demandPrivate == 0:
             self.demandPrivate = 1
+            print("2")
             return("Et si nous allions discuter en privé ;)... \nj'ai plein de choses à te raconter,\n envoie moi un message !\(en bas à gauche :p )")
             
         if self.state == "waitingHumeur":
             self.humeur = lastMSG
             self.state = "waitingIntensite"
+            print("3")
             return (boutons.button2[0], boutons.button2[1])
         
         if self.state == "waitingIntensite":
             self.intensite = lastMSG
             self.state = "waitingHumeurExplanation"
+            print("4")
             return("Est ce que tu peux me dire pourquoi ??", None)
         
         if self.state == "waitingHumeurExplanation":
             self.humeurString = lastMSG
+            print("5")
             self.state = None
             
             #append the mood in db
@@ -85,27 +90,34 @@ class Dialog:
             self.saveHumeur(lastAuth, self.humeur, self.intensite, self.humeurString ,lastTime)
             
             if self.humeur == "super" or self.humeur == "genial":
+                print("6.1")
                 return ("Ok, c'est parti pour une super journée alors :joy:", None)
         
             elif self.humeur == "moyen":
+                print("6.2")
                 return ("Courage ça va bien se passer :grinning:", None)   
             
             elif self.humeur == "pas terrible" :
+                print("6.3")
                 return ("Courage! Ca va bien se passer :relieved:", None) 
             
             elif self.humeur == "pas bien" :
+                print("6.4")
                 return ("Je suis là si tu as besoin de parler :hushed:", None)
         
         #if lastMSG == '#mood #daily':
         if '#mood' in lastMSG.split():
             if '#daily' in lastMSG.split():
+                print("7.1")
                 return self.getHumeur(range = "daily")
             
             if '#weekly' in lastMSG.split():
+                print("7.2")
                 return self.getHumeur("weekly")
             
         
         if lastMSG == '#logs':
+            print("8")
             return (str(self.dialog),None)
         
         return (lastMSG, None)
