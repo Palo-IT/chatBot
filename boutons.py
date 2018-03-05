@@ -11,7 +11,7 @@ button1 = [
         {
             "text": "Choisis ton intensité !",
             "fallback": "Disons: Super, génial, moyen, ok, pas terrible, pas bien",
-            "callback_id": "wopr_game",
+            "callback_id": "humeur_type",
             "color": "#3AA3E3",
             "attachment_type": "default",
             "actions": [
@@ -107,3 +107,54 @@ button2 = [
         }
     ]
             ]
+
+
+def attachImg(fallback= "", title = "", title_link = "", text = "", image_url = "", color = ""):
+    return [
+        {
+            "fallback": fallback,
+            "title": title,
+            "title_link": title_link,
+            "text": text, 
+            "image_url": image_url,
+            "color": color
+        }
+    ]
+    
+    
+def makeCake(kind, res):
+    title = ''
+    text = ''
+    image_url = ''
+    
+    if kind == "Blague":
+        text = res[1]
+        
+    elif kind == "Devinette":
+        title = res[1]
+        text = res[2]
+        
+    elif kind == "Video":
+        title = res[2]
+        text = res[1]
+        
+    elif kind == "Image":
+        image_url = res[1]
+        title = res[2]
+        
+        
+    elif kind == "Citation":
+        title = res[1]
+        text = res[2]
+        
+    
+    
+    attach = [
+            {
+            "title": title,
+            "text": text, 
+            "image_url": image_url,
+        }]
+        
+        
+    return attach

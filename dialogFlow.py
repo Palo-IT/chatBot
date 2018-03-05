@@ -8,80 +8,83 @@ Created on Sat Feb 17 19:44:24 2018
 
 listRes = ['Citation', 'Blague', 'Devinette', 'Image', 'Video']
 
-import bddConn
-#import pandas as pd
+#import bddConn
 import boutons
 import datetime as dat
 from random import randint
 import datetime
+import MYSQLBdd
+
+
 
 class Dialog:
     
     def __init__(self, channel, publique):
         self.channel = channel
-        
-        #print("public", publique)
+        self.publique = 0 
         if publique == 1:
-            self.publique = 1
-        else:
-            self.publique = 0
-            
+            self.publique = 1          
         self.dialog = []
         self.humeur = 0
         self.intensite = 0
         self.humeurString = None
-        self.demandPrivate = 0
-        
+        self.demandPrivate = 0      
         self.state = None
-        
+        self.bufferOut = []
+    
+    def incoming(self, event_data):
+        print('incoming')
+        msg = ''
+        if event_data['type'] == "message":
+            msg = event_data['text']
+        if event_data['type'] == "buttonClicked":
+            msg = event_data['value']
             
-    def newMSG(self, newMSG, time, author):
-        self.dialog.append([newMSG, time, author])
-        
-        
-        ans = self.chooseAnswer()
-        if type(ans) != str:
-            (ans, attach) = ans
-        else:
-            (ans, attach) = (ans, None)
-        self.dialog.append([ans, '', 'BOT'])
-        print(self.dialog)
-        
-        return (ans, attach)
-        
+        time = datetime.datetime.fromtimestamp(float(event_data['time'])).strftime('%Y/%m/%d %H:%M:%S')
+        self.dialog.append([msg, time, event_data['author']])
+        return self.chooseAnswer()
+          
+    def sendMSG(self, message, attachment, private, user):
+        print("message")  
         
     def chooseAnswer(self):
+        print("chooseAnswer")
         lastMSG = self.dialog[-1][0]
         lastTime = self.dialog[-1][1]
         lastAuth = self.dialog[-1][2]
+        
+        answerText = lastMSG
+        answerAttachment = None
+        answerPrivate = 0
+        answerTime = datetime.datetime.strftime(datetime.datetime.now(), '%Y/%m/%d %H:%M:%S')
+        answerAuth = lastAuth
 
         
         if self.humeur == 0 and not self.publique :
             self.state = "waitingHumeur"
             self.humeur = "unknown"
-            print("1")
-            return (boutons.button1[0], boutons.button1[1])  
+            answerText = boutons.button1[0]
+            answerAttachment = boutons.button1[1]
         
-        if self.humeur == 0 and  self.publique and self.demandPrivate == 0:
-            self.demandPrivate = 1
-            print("2")
-            return("Et si nous allions discuter en privé ;)... \nj'ai plein de choses à te raconter,\n envoie moi un message !\(en bas à gauche :p )")
+        elif self.publique :
+            answerText = "Et si nous allions discuter en privé ;)... \nj'ai plein de choses à te raconter,\n envoie moi un message !\(en bas à gauche :p )"
+            answerPrivate = 1
+            answerAuth = lastAuth
             
-        if self.state == "waitingHumeur":
+        elif self.state == "waitingHumeur":
             self.humeur = lastMSG
             self.state = "waitingIntensite"
-            print("3")
-            return (boutons.button2[0], boutons.button2[1])
+            answerText = boutons.button2[0]
+            answerAttachment = boutons.button2[1]
+            
         
-        if self.state == "waitingIntensite":
+        elif self.state == "waitingIntensite":
             self.intensite = lastMSG
             self.state = "waitingHumeurExplanation"
-            print("4")
-            return("Est ce que tu peux me dire pourquoi ??", None)
+            answerText = "Est ce que tu peux me dire pourquoi ??"
         
-        if self.state == "waitingHumeurExplanation":
+        elif self.state == "waitingHumeurExplanation":
             self.humeurString = lastMSG
-            print("5")
             self.state = None
             
             #append the mood in db
@@ -90,57 +93,54 @@ class Dialog:
             self.saveHumeur(lastAuth, self.humeur, self.intensite, self.humeurString ,lastTime)
             
             if self.humeur == "super" or self.humeur == "genial":
-                print("6.1")
-                return ("Ok, c'est parti pour une super journée alors :joy:", None)
+                answerText = "Ok, c'est parti pour une super journée alors :joy:"
         
             elif self.humeur == "moyen":
-                print("6.2")
-                return ("Courage ça va bien se passer :grinning:", None)   
+                answerText = "Courage ça va bien se passer :grinning:"
             
             elif self.humeur == "pas terrible" :
-                print("6.3")
-                return ("Courage! Ca va bien se passer :relieved:", None) 
+                answerText = "Courage! Ca va bien se passer :relieved:"
             
             elif self.humeur == "pas bien" :
-                print("6.4")
-                return ("Je suis là si tu as besoin de parler :hushed:", None)
-        
-        #if lastMSG == '#mood #daily':
+                answerText = "Je suis là si tu as besoin de parler :hushed:"
+                
+            answerAttachment = self.getCookie()
+            
         if '#mood' in lastMSG.split():
             if '#daily' in lastMSG.split():
-                print("7.1")
                 return self.getHumeur(range = "daily")
             
             if '#weekly' in lastMSG.split():
-                print("7.2")
                 return self.getHumeur("weekly")
             
         
         if lastMSG == '#logs':
-            print("8")
-            return (str(self.dialog),None)
+            answerText = str(self.dialog)
+            
+        if lastMSG == '#cookie':
+            answerText = "Miam"
+            answerAttachment = self.getCookie()
         
-        return (lastMSG, None)
+        #self.sendMSG(answerText, answerAttachment, 1)
+        self.dialog.append([answerText, answerTime, 'BOT'])
+        return (answerText, answerAttachment, answerPrivate, answerAuth)
  
     
-    def getHumeur(self, range = "daily"):
-        
+    def getHumeur(self, range = "daily"):      
         moods = [mood for mood in bddConn.getRes("Mood")]
         #print(moods)
         moods = moods[1:]
         #print(moods)
         dictH = {}
-        today = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).strftime('%m/%d/%Y')
-        
+        today = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).strftime('%m/%d/%Y')       
         #print(today)
         if range == "daily":
             rangeDays = [today]
             
         if range == "weekly":
             rangeDays = septDernierjours(today)
-            
-            
-        print(rangeDays)
+        
+        #print(rangeDays)
         hums = ['super','genial','pas terrible','pas bien','moyen']
         for hum in hums:
             dictH[hum] = 0
@@ -178,37 +178,45 @@ class Dialog:
         
         
     def saveHumeur(self, user, humeur, intensite, humeurStr, date):
-        bddConn.addRes("Mood", [user, humeur, intensite, humeurStr, date]) 
-        return 1 
+        #bddConn.addRes("Mood", [user, humeur, intensite, humeurStr, date]) 
+        conn = MYSQLBdd.monSql( http = "127.0.0.1",
+                 base = "test_chatbot", 
+                 user = "root",
+                 port = 3306,
+                 password =  "eisti0001",
+                 )
+        
+        liste_item = ['user', 'humeur', 'intensite', 'humeurSTR', 'dateStr']
+        liste_value = [user, humeur, intensite, humeurStr, date]
+        #liste_value = ['tgf', 'sf', '4', '<sd', '<sf']
+        conn.insert_IntoTable("Mood" , liste_item , liste_value)
+        conn.close()
+        return 1  
     
-    """
-    def getCookie(self, category = "all"):
+    def getCookie(self):
+        attachment = None
+        cat = chooseRandom(listRes)
+        print(cat)
+        conn = MYSQLBdd.monSql( http = "127.0.0.1",
+                 base = "test_chatbot", 
+                 user = "root",
+                 port = 3306,
+                 password =  "eisti0001",
+                 )
+        res = conn.getItemIntoTable(cat)
+        conn.close()
+        print(res)
         
-        cookie = 0
-        while cookie == 0:
-            if category == 'all':
-                category = chooseRandom(listRes)
-                print (category)
+        if len(res) > 0:
+            item = res[chooseRandom(range(len(res)))]
+            print(item)
             
+            attachment = boutons.makeCake(cat, item)
+            print(attachment)
+        if attachment == []:
+            return self.getCookie()
+        return attachment
             
-            if category not in listRes:
-                return ("error, invalid category")
-        
-            res = bddConn.getRes(category)
-            if len(res) > 2:
-                print(res)
-                headers = res[0]
-                res = chooseRandom(res.pop(0))
-                cookie = res
-                
-        if "text" in headers:
-            return 
-            
-        
-        
-        return res
-        
-   """     
         
         
 def chooseRandom(liste):
@@ -234,7 +242,7 @@ if __name__ == "__main__":
     #print(str(cb.getHumeur()))
     #☼cb.getHumeurs()
     #print(cb.getHumeurs())
-    date = "2018-02-01"
+    #date = "2018-02-01"
     #liste = septDernierjours(date)
     #print(type(liste))
     #print(liste)
@@ -242,7 +250,8 @@ if __name__ == "__main__":
     #    print(res)
     #print(chooseRandom(["a", "b", "c"]))
     #print(cb.getCookie("all"))
-    print(cb.getHumeur("weekly"))
+    #print(cb.getHumeur("weekly"))
+    cb.getCookie()
 
 
 
@@ -262,6 +271,9 @@ def septDernierjours(date):
     """
 
 
+
+def processTime(ts):
+    return datetime.datetime.fromtimestamp(float(ts)).strftime('%Y-%m-%d %H:%M:%S')
 
 
 

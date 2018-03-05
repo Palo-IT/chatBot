@@ -7,15 +7,19 @@
 - Event Subscriptions:
 	_ Enable Events (ON)
 	_ Request URL = url/slack/events
+
+- OAuth & Permission: 
+	_ redirect URL = url/slack/events
 	_ Add Bot User Event:
 		_ message.channels (listen to channels)
 		_ reaction_added (listen to reaction)
 		_ message.im (listen to private msg)
 
-
-- OAuth & Permission: 
-	_ redirect URL = url/slack/events
-	
 - Interactive Components:
 	- Request url: url/slack/message_actions
 	- Options Load URL: url/slack/message_options (for Message Menus)
+
+
+Completer le doc sur le multi-threading.
+Gérer plusieurs users sur un meme channel.
+Push git
