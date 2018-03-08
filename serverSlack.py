@@ -22,7 +22,7 @@ for line in open("tokens.txt", "r").readlines():
         SLACK_BOT_TOKEN = line[line.index('='):][1:].replace("\n","")       
     if "serverURL" in line:
         serverURL = line[line.index('='):][1:].replace("\n","")
-    if "portNumber" in line:
+    if "serverPortNumber" in line:
         PORT = line[line.index('='):][1:].replace("\n","")
         
 
@@ -168,9 +168,11 @@ def handleIncoming(event_data):
     if channel == None or event['type'] == 'None':
         return 'ok'
     
+    print("event")
+    print(event)
     if channel not in convs.keys():
         isPublic = int(privateOrNot(channel))
-        convs[channel] = DialogSlack(channel, isPublic)      
+        convs[channel] = DialogSlack(channel, isPublic)     
     (message, attachments , private, author) = convs[channel].incoming(event)
     convs[channel].sendMSG(message, attachments , private, author )   
     return 'ok'    

@@ -139,8 +139,12 @@ def makeCake(kind, res):
         text = res[1]
         
     elif kind == "Image":
-        image_url = res[1]
-        title = res[2]
+        image_url = res[2]
+        
+        if image_url[-2:] == "/r":
+             image_url= image_url[-2:]
+            
+        title = res[1]
         
         
     elif kind == "Citation":

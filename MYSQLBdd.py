@@ -8,6 +8,33 @@ Created on Mon Feb 26 15:32:58 2018
 
 import mysql.connector
 from mysql.connector import errorcode
+import csv
+import os
+
+
+
+#VARS
+#get the tokens to get access to Slack, port number and public url to access the server
+for line in open("tokens.txt", "r").readlines():
+    if "dbURL =" in line:
+        dbURL = line[line.index('='):][1:].replace("\n","")
+    if "baseSchemaName =" in line:
+        schName = line[line.index('='):][1:].replace("\n","")       
+    if "userDB =" in line:
+        userName = line[line.index('='):][1:].replace("\n","")
+    if "portDB =" in line:
+        PORT = line[line.index('='):][1:].replace("\n","")
+    if "passwordDB =" in line:
+        pswDB = line[line.index('='):][1:].replace("\n","")
+        
+        
+SQLtypes = ["TEXT", "TINYTEXT", "INT"]
+CWD = os.getcwd()
+
+"""        
+print(dbURL, schName, userName, PORT, pswDB)
+"""
+
 
         #tables c'est un dictionnaire contenant le nom des tables en clé et leurs descriptions en valeurs
 tables = {}
@@ -28,7 +55,7 @@ tables ["Mood"] = (
 tables ["Citation"] = (
             "CREATE TABLE `Citation`  ("
             "`id` bigint (32) AUTO_INCREMENT,"
-            " `quote` varchar(255) NOT NULL," 
+            " `quote` TEXT NOT NULL," 
             " `author` varchar(255) NOT NULL," 
             " PRIMARY KEY (`id`)"
             ") ENGINE=InnoDB"    )
@@ -37,14 +64,14 @@ tables ["Citation"] = (
 tables ["Blague"] = (
             "CREATE TABLE `Blague`  ("
             "`id` bigint (32) AUTO_INCREMENT,"
-            " `text` varchar(255) NOT NULL," 
+            " `text` TEXT NOT NULL," 
             " PRIMARY KEY (`id`)"
             ") ENGINE=InnoDB"    )
     
 tables ["Devinette"] = (
             "CREATE TABLE `Devinette`  ("
             "`id` bigint (32) AUTO_INCREMENT,"
-            " `quote` varchar(255) NOT NULL," 
+            " `quote` TEXT NOT NULL," 
             " `answer` varchar(255) NOT NULL,"
             " PRIMARY KEY (`id`)"
             ") ENGINE=InnoDB"    )
@@ -71,18 +98,16 @@ tables ["Image"] = (
 
 class monSql :
     def __init__ (self, 
-                 http = "127.0.0.1",
-                 base = "test_chatbot", 
-                 user = "root",
-                 port = 3306,
-                 password =  "eisti0001",
+                 http = dbURL,
+                 base = schName, 
+                 user = userName,
+                 port = PORT,
+                 password =  pswDB,
                  ) :
         self.cnx = mysql.connector.connect(user=user, password=password,
                                            host=http, port=port,
                                            )
-        
         self.cursor = self.cnx.cursor()
-        
         # on regarde si la base existe et  sinon on cree
         try:
             self.cnx.database = base
@@ -104,7 +129,6 @@ class monSql :
             raise
         return
     
-    
     def close (self,) :
         self.cnx.close()
         
@@ -123,8 +147,7 @@ class monSql :
             liste_item.append(i[0])
         return liste_item[1:]
     
-    
-    
+    #retun all rows of the table
     def getItemIntoTable(self, table):
         liste_item = []
         requete = """SELECT * FROM {}""".format(table)
@@ -132,16 +155,19 @@ class monSql :
             self.cursor.execute(requete)
             liste_item = self.cursor.fetchall()
         except mysql.connector.Error as err:
-            print("Failed creating database: {}".format(err))
+            print("Failed retrieving database: {}".format(err))
             raise
         return liste_item
     
-    
-    
-        
+    #insert a row in a table    
     def insert_IntoTable(self ,table , liste_item , liste_value):
-         print(liste_item)
-         print(liste_value)
+         """print(liste_item)
+         #print(liste_value)
+         #print([type(val) for val in liste_value])
+         """
+         liste_value = [mysqlStringPP(val) if type(val) == str else val for val in liste_value]
+         """print(liste_value)
+         """
          requete = "INSERT INTO `{}` ".format(table)
          requete +="("
          for i in range(len(liste_item)) :
@@ -162,15 +188,10 @@ class monSql :
              self.cnx.commit()
              
          except :
-             print('insertion error')
-             
-
-                 
+             print('insertion error')     
          
 
     def delete_IntoTable(self,table, id_table) :
-        
-        
         pre_requete = "SELECT COUNT(id) FROM {} WHERE id = {};".format(table , id_table)
         try :
             self.cursor.execute(pre_requete)
@@ -186,26 +207,20 @@ class monSql :
              print("Impossible de se connecter a la bdd")
         
     def delete_Table(self , table):
-        requete = "DROP TABLE IF EXISTs  {}".format(table)
+        requete = "DROP TABLE IF EXISTS  {}".format(table)
         try :
+            print("!Deleting: {}".format(table))
             self.cursor.execute(requete)
             print("delete table  succed")
             self.cnx.commit()
         except :
             print ("delete table error")
-            
-            
     
     def getDBInfo(tabl = tables):
-        
         liste_tables = []
-        
         for name in tables.keys():
-            
             liste_tables.append(name)
-            
-        return liste_tables
-    
+        return liste_tables    
      
     def execSqlcommand(self):
         requete = input("veuillez saisir votre SQL commande : \n")
@@ -216,21 +231,20 @@ class monSql :
             print(val)            
             self.cnx.commit()
         except :
-            print("syntax invalid")          
-    
-    
+            print("syntax invalid")    
     
     def create_table(self,
                      tables,
-                     http = "127.0.0.1" ,
-                     base = "test_chatbot",
-                     user = 'root',
-                     password  = 'eisti0001', isNew  = False):
+                     http = dbURL ,
+                     base = schName,
+                     user = userName,
+                     password  = pswDB, 
+                     isNew  = False):
         
         
         for name, ddl in tables.items():
             if isNew :
-                command = "DROP TABLE IF EXISTs " + name
+                command = "DROP TABLE IF EXISTS " + name
                 try :
                     print ("Dropping table {}  =>".format(name))
                     self.cursor.execute(command)
@@ -254,24 +268,97 @@ class monSql :
             continue
         return
     
+    
+    #import a table from a csv file
+    #will create a table adapted to the file
+    #if table name already exists, will be deleted
+    def importTable(self, csvFile, delimiter, colTypes):      
+        tableName = csvFile.split(".")[-2].split("\\")[-1]
+        if csvFile.split("\\")[0] not in ['C:', 'H:', 'D:']:
+           csvFile = mysqlStringPP(CWD + '\\' + csvFile)
+        print(csvFile)
+              
+        #Delete existing tablez       
+        
+        self.delete_Table(tableName)
+        """
+        command = "DROP TABLE IF EXISTS " + tableName
+        try :
+            print ("Dropping table {}  =>".format(tableName))
+            self.cursor.execute(command)
+        except:
+            print (" error during drop ?")
+            raise
+        else:
+            print (" Drop ok")
+        """
 
+        #create sql table creation statement
+        ddl = "CREATE TABLE `{}`  (""`ID` bigint (32) AUTO_INCREMENT,".format(tableName)
+        for col, typ in colTypes.items():
+            ddl += " `{}` {} NOT NULL,".format(col, typ)   
+        ddl += " PRIMARY KEY (`ID`)"") ENGINE=InnoDB"
+
+        #execute it
+        try:
+            print("Creating table {}: ".format(tableName))
+            self.cursor.execute(ddl)
+            self.cnx.commit()
+        except mysql.connector.Error as err:
+            if err.errno == errorcode.ER_TABLE_EXISTS_ERROR:
+                print("already exists.")
+            else:
+                print(err.msg)
+                raise
+        else:
+            print("OK") 
+        
+        #finally load the file
+        headers = 1
+        #LINES TERMINATED BY '\\r \\n' IGNORE
+        ddl = "LOAD DATA LOCAL INFILE '{}' INTO TABLE {} FIELDS TERMINATED BY '{}' IGNORE {} ROWS (".format(csvFile, tableName, delimiter, headers)
+        for col in  colTypes.keys():
+            ddl+= "{}.{} ,".format(tableName, col)
+        ddl = ddl[:-1]
+        ddl+= ")  SET ID = NULL ;"
+        print(ddl)
+        try:
+            print("import file: {}".format(csvFile))
+            self.cursor.execute(ddl)
+            self.cnx.commit()
+        except mysql.connector.Error as err:
+            print(err.msg)
+            raise
+        else:
+            print("ok")
+        return      
+
+def mysqlStringPP(text):    
+    import re
+    
+    # define desired replacements here
+    rep = {
+            "'":"''",
+            '"':'""',
+            "\n":"\n",
+            '\{}'.format(''):"\\\\"
             
+           }
+    # use these three lines to do the replacement
+    rep = dict((re.escape(k), v) for k, v in rep.items())
+    pattern = re.compile("|".join(rep.keys()))
+    return pattern.sub(lambda m: rep[re.escape(m.group(0))], text)
     
 
 
 def menu():
     print("\nGestion de la base de données:\n")
-    print("0: quitter\n1: ajouter un élement dans la base\n2: supprimer un élement de la base\n3: afficher la base\n4: input a direct SQL command (check your syntax!!)\n5: creer ou maj la base de données")
+    print("0: quitter\n1: ajouter un élement dans la base\n2: supprimer un élement de la base\n3: afficher la base\n4: input a direct SQL command (check your syntax!!)\n5: creer ou maj la base de données\n6: importer une table depuis un .csv")
     Base = monSql()
     choix = input("choix: ")
     print("\n")
-    
-    
-    if choix == "5" :
-        Base.create_table(tables)
         
-        
-    elif choix == "1" :
+    if choix == "1" :
         liste_table = Base.getDBInfo()
         for table in liste_table :
             print(table)
@@ -294,6 +381,10 @@ def menu():
         choixTable = ''
         while choixTable not in liste_table:
             choixTable = input("De quelle table s'agit-il ? \n")
+        print('[' + choixTable + ']')
+        listeItem =  Base.getItemIntoTable(choixTable)
+        for  items in listeItem :
+            print(items)
         choixId = input("Quelle id voulez vous supprimer \n")
         
         Base.delete_IntoTable(choixTable, choixId)
@@ -310,6 +401,30 @@ def menu():
             
     elif choix == "4":
         Base.execSqlcommand()
+        
+    elif choix == "5" :
+        Base.create_table(tables)
+        
+    elif choix == "6":
+        try:
+            from Tkinter import Tk
+            from tkFileDialog import askopenfilename
+            Tk().withdraw() # we don't want a full GUI, so keep the root window from appearing
+            filename = askopenfilename() # show an "Open" dialog box and return the path to the selected file
+        except:
+            filename = input("entrer le nom du fichier avec son chemin\n")
+            pass
+        delimiter = input("delimiter?\n")        
+        with open(filename, 'r') as file:
+            reader = csv.reader(file, delimiter = delimiter)
+            cols = next(reader)
+            colTypes = {}
+            for col in cols:
+                colName = input("Nom de la colonne: (sugg: {})\n".format(col))
+                colTypes[colName] = None
+                while colTypes[colName] not in SQLtypes:
+                    colTypes[colName] = input("type de la columne parmi {}\n".format(SQLtypes))          
+        Base.importTable(filename, delimiter, colTypes) 
     
         
     elif choix == "0":
@@ -323,6 +438,6 @@ def menu():
     
     
 if __name__ == "__main__" :
-    print ("on y va")
     menu()
-    print ("end_of_job")
+    #print(mysqlStringPP("aujourd'hui j'ai \ mangé un poisson\n :)"))
+    

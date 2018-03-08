@@ -14,6 +14,7 @@ import datetime as dat
 from random import randint
 import datetime
 import MYSQLBdd
+import pandas as pd
 
 
 
@@ -30,7 +31,6 @@ class Dialog:
         self.humeurString = None
         self.demandPrivate = 0      
         self.state = None
-        self.bufferOut = []
     
     def incoming(self, event_data):
         print('incoming')
@@ -39,7 +39,6 @@ class Dialog:
             msg = event_data['text']
         if event_data['type'] == "buttonClicked":
             msg = event_data['value']
-            
         time = datetime.datetime.fromtimestamp(float(event_data['time'])).strftime('%Y/%m/%d %H:%M:%S')
         self.dialog.append([msg, time, event_data['author']])
         return self.chooseAnswer()
@@ -126,7 +125,29 @@ class Dialog:
         return (answerText, answerAttachment, answerPrivate, answerAuth)
  
     
-    def getHumeur(self, range = "daily"):      
+    def getHumeur(self, range = "daily", hour =None):
+        conn = MYSQLBdd.monSql()
+        df = pd.DataFrame(data=[mood[1:] for mood in conn.getItemIntoTable("Mood")], columns = ["user", "humeur", "intensite", "humeurStr", "date"])
+        conn.close()
+        
+        today = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
+        if range == "daily":
+            rangeDays = [today]
+            
+        if range == "weekly":
+            rangeDays =joursAvant(today, 7)
+            
+        #print(rangeDays)
+            
+        #df = df.drop[[df.date not in rangeDays]]
+        
+        #[user, humeur, intensite, humeurStr, date]
+        #print(df)
+        return "ok"
+        
+        
+        
+        """
         moods = [mood for mood in bddConn.getRes("Mood")]
         #print(moods)
         moods = moods[1:]
@@ -173,22 +194,14 @@ class Dialog:
         if len(rangeDays) == 1:
             return ("humeurs pour le jour : {} \n".format(rangeDays[0]) + str(dictH))
         return ("humeurs pour l'intervalle : {} a {} \n".format(rangeDays[0], rangeDays[-1]) + str(dictH))
-
+    """
         
         
         
     def saveHumeur(self, user, humeur, intensite, humeurStr, date):
-        #bddConn.addRes("Mood", [user, humeur, intensite, humeurStr, date]) 
-        conn = MYSQLBdd.monSql( http = "127.0.0.1",
-                 base = "test_chatbot", 
-                 user = "root",
-                 port = 3306,
-                 password =  "eisti0001",
-                 )
-        
+        conn = MYSQLBdd.monSql()
         liste_item = ['user', 'humeur', 'intensite', 'humeurSTR', 'dateStr']
         liste_value = [user, humeur, intensite, humeurStr, date]
-        #liste_value = ['tgf', 'sf', '4', '<sd', '<sf']
         conn.insert_IntoTable("Mood" , liste_item , liste_value)
         conn.close()
         return 1  
@@ -196,25 +209,17 @@ class Dialog:
     def getCookie(self):
         attachment = None
         cat = chooseRandom(listRes)
-        print(cat)
-        conn = MYSQLBdd.monSql( http = "127.0.0.1",
-                 base = "test_chatbot", 
-                 user = "root",
-                 port = 3306,
-                 password =  "eisti0001",
-                 )
+        conn = MYSQLBdd.monSql()
         res = conn.getItemIntoTable(cat)
         conn.close()
-        print(res)
-        
         if len(res) > 0:
-            item = res[chooseRandom(range(len(res)))]
-            print(item)
-            
+            item = res[chooseRandom(range(len(res)))]            
             attachment = boutons.makeCake(cat, item)
-            print(attachment)
         if attachment == []:
+            print('erreur sur la ressource :')
+            print(res)
             return self.getCookie()
+        print(attachment)
         return attachment
             
         
@@ -222,21 +227,16 @@ class Dialog:
 def chooseRandom(liste):
     return liste[randint(0, len(liste)-1)]
 
-def septDernierjours(date):
-    madate = dat.datetime.strptime(date, '%m/%d/%Y')
-    liste_jour = [madate]
-    liste_format = []
-    for i in range(6):
-        tmp = madate - dat.timedelta(1)
-        liste_jour.append(tmp)
-        madate =tmp
-    for i in liste_jour:
-       liste_format.append(i.strftime('%m/%d/%Y'))
+def joursAvant(date, deltaAvant):
+    madate = dat.datetime.strptime(date, '%Y/%m/%d %H:%M:%S').date()
+    liste_jour = [(madate - dat.timedelta(i)) for i in range(deltaAvant)]
+    liste_format = [i.strftime('%Y/%m/%d') for i in liste_jour]
     return liste_format   
-        
-        
-            
-            
+
+def processTime(ts):
+    return datetime.datetime.fromtimestamp(float(ts)).strftime('%Y-%m-%d %H:%M:%S')   
+     
+
 if __name__ == "__main__":
     cb = Dialog('None', 1)
     #print(str(cb.getHumeur()))
@@ -252,6 +252,7 @@ if __name__ == "__main__":
     #print(cb.getCookie("all"))
     #print(cb.getHumeur("weekly"))
     cb.getCookie()
+    #cb.getHumeur("weekly")
 
 
 
@@ -272,8 +273,7 @@ def septDernierjours(date):
 
 
 
-def processTime(ts):
-    return datetime.datetime.fromtimestamp(float(ts)).strftime('%Y-%m-%d %H:%M:%S')
+
 
 
 

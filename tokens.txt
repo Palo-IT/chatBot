@@ -1,4 +1,14 @@
+#Credentials for the slack api#
 SLACK_VERIFICATION_TOKEN =uXad2WrJTvE805uvx703ztWE
 SLACK_BOT_TOKEN =xoxb-294373068482-1wMQ7fBxfCRqGPZJYUpILObH
-serverURL =https://d01222c5.ngrok.io
-portNumber =3000
+
+#Information for the server back-end#
+serverURL =https://efbcf140.ngrok.io
+serverPortNumber =3000
+
+#Credentials for the database connexion#
+dbURL =127.0.0.1
+baseSchemaName =test_chatbot 
+userDB =root
+portDB =3306
+passwordDB =eisti0001
