@@ -3,12 +3,12 @@ SLACK_VERIFICATION_TOKEN =uXad2WrJTvE805uvx703ztWE
 SLACK_BOT_TOKEN =xoxb-294373068482-1wMQ7fBxfCRqGPZJYUpILObH
 
 #Information for the server back-end#
-serverURL =https://efbcf140.ngrok.io
+serverURL =https://chatbot.localtunnel.me
 serverPortNumber =3000
 
 #Credentials for the database connexion#
-dbURL =127.0.0.1
-baseSchemaName =test_chatbot 
-userDB =root
-portDB =3306
-passwordDB =eisti0001
+dbURL =193.70.14.209
+baseSchemaName =db_chatbot 
+userDB =db_chatbot
+portDB =3308
+passwordDB =db_chatbot_pwd

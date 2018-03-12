@@ -1,0 +1,36 @@
+requirements:
+
+1. A installer depuis internet:
+nodejs
+mysql (pour mac uniquement)
+
+
+2. pip install (a partir du cmd ou terminal)
+
+slackclient
+flask
+pyee
+mysql_connector
+
+datetime
+pandas
+tkinter
+
+
+3. npm install
+npm install -g localtunnel
+
+
+4. pour generer l'url (dans le cmd ou terminal):
+lt --port 3000 --subdomain chatbot
+
+
+5. remplacer les urls sur https://api.slack.com/apps (normalement c'est deja fait) 
+(pour pouvoir changer les urls il faut faire parti des collaborateurs de l'app)
+
+Dans les rubriques :
+_ Interactive Components > Request URL
+_ OAuth & Permissions > Redirect URLs
+_ Event Subscriptions > Request URL
+Remplacer les urls par:
+https://chatbot.localtunnel.me/slack/events
