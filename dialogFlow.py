@@ -10,7 +10,6 @@ listRes = ['Citation', 'Blague', 'Devinette', 'Image', 'Video']
 
 #import bddConn
 import boutons
-import datetime as dat
 from random import randint
 import datetime
 import MYSQLBdd
@@ -228,7 +227,7 @@ def chooseRandom(liste):
     return liste[randint(0, len(liste)-1)]
 
 def joursAvant(date, deltaAvant):
-    madate = dat.datetime.strptime(date, '%Y/%m/%d %H:%M:%S').date()
+    madate = datetime.datetime.strptime(date, '%Y/%m/%d %H:%M:%S').date()
     liste_jour = [(madate - dat.timedelta(i)) for i in range(deltaAvant)]
     liste_format = [i.strftime('%Y/%m/%d') for i in liste_jour]
     return liste_format   
@@ -259,7 +258,7 @@ if __name__ == "__main__":
 """Nathi
 ## Dates Nathi
 def septDernierjours(date):
-    madate = dat.datetime.strptime(date, '%Y-%m-%d')
+    madate = datetime.datetime.strptime(date, '%Y-%m-%d')
     liste_jour = [madate]
     liste_format = []
     for i in range(6):
@@ -271,16 +270,13 @@ def septDernierjours(date):
     return liste_format    
     """
 
-
-
-
-
-
-
-
-
-
-
+"""
+def afficherMood():
+    while 1:
+        heure = dat.datetime.now().strftime('%H,%M,%S')
+        if heure == "11,00,00" or heure =="16,00,00":
+"""          
+        
 
 
 #datetime.now()

@@ -23,7 +23,7 @@ for line in open("tokens.txt", "r").readlines():
     if "serverURL" in line:
         serverURL = line[line.index('='):][1:].replace("\n","")
     if "serverPortNumber" in line:
-        PORT = line[line.index('='):][1:].replace("\n","")
+        PORT = int(line[line.index('='):][1:].replace("\n",""))
         
 
 app = Flask(__name__)

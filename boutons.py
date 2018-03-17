@@ -109,6 +109,45 @@ button2 = [
             ]
 
 
+
+def attachMood():
+{
+    "attachments": [
+        {
+            "title": "humeur de la journée",
+            "fields": [
+                {
+                    "title": "Bien",
+                    "value": "80 %",
+                    "short": "true"
+                },
+                {
+                    "title": "Génial",
+                    "value": "10 %",
+                    "short": "true"
+                },
+    {
+                    "title": "Pas terrible",
+                    "value": "2%",
+                    "short": "true"
+                },
+    {
+                    "title": "Pas bien",
+                    "value": "2%",
+                    "short": "true"
+                },
+    {
+                    "title": "Pas bien",
+                    "value": "2%",
+                    "short": "true"
+                }
+            ]
+        }
+    ]
+}
+
+
+
 def attachImg(fallback= "", title = "", title_link = "", text = "", image_url = "", color = ""):
     return [
         {

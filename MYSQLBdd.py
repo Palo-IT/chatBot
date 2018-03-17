@@ -10,7 +10,7 @@ import mysql.connector
 from mysql.connector import errorcode
 import csv
 import os
-
+import datetime
 
 
 #VARS
@@ -233,6 +233,21 @@ class monSql :
         except :
             print("syntax invalid")    
     
+    def agregationMood(self, date1, date2):
+        agr = {}
+        requete = """select humeur ,count(*) as nb from Mood as m 
+        WHERE STR_TO_DATE( m.dateSTR , '%Y/%m/%d %T') BETWEEN '{}' AND '{}'
+        group by m.humeur;""".format(date1, date2)
+        print(requete)
+        try:
+            self.cursor.execute(requete)
+            agregation =(self.cursor.fetchall())
+        except mysql.connector.Error as err:
+            print("Failed retrieving database: {}".format(err))
+        for i in agregation:
+            agr[i[0]] = i[1]
+        return agr
+              
     def create_table(self,
                      tables,
                      http = dbURL ,
@@ -349,6 +364,9 @@ def mysqlStringPP(text):
     pattern = re.compile("|".join(rep.keys()))
     return pattern.sub(lambda m: rep[re.escape(m.group(0))], text)
     
+ 
+
+
 
 
 def menu():
@@ -434,10 +452,34 @@ def menu():
         menu()
         
     menu()
-        
-    
+   
+def getDates(delta):
+    d = datetime.datetime.now()
+    print(d)
+    d2=d- datetime.timedelta(days=delta)
+    print(d2)
+    date1 = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
+    date2=d2.strftime('%Y/%m/%d %H:%M:%S')
+    print(date1)
+    print(date2)
+    return date1, date2   
+   
     
 if __name__ == "__main__" :
-    menu()
+    Base = monSql()
+#    menu()
+    getDates(delta=3)
+#    print(date1)
+#    print(date2)
+    res = Base.agregationMood(date2 ,date1)
+    print(res)  
     #print(mysqlStringPP("aujourd'hui j'ai \ mangé un poisson\n :)"))
     
+    
+    
+"""
+while 1:
+    heure = dat.datetime.now().strftime('%H,%M,%S')
+    if heure == "11,00,00" or heure =="16,00,00":
+        agregationMood(date1,date2)
+"""
