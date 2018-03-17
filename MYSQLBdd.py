@@ -5,12 +5,13 @@ Created on Mon Feb 26 15:32:58 2018
 @author: Administrator
 """
 
-
+import time
 import mysql.connector
 from mysql.connector import errorcode
 import csv
 import os
 import datetime
+from threading import Timer,Thread,Event
 
 
 #VARS
@@ -94,7 +95,24 @@ tables ["Image"] = (
             " PRIMARY KEY (`id`)"
             ") ENGINE=InnoDB"    )
 
+class perpetualTimer():
 
+   def __init__(self,t,hFunction):
+      self.t=t
+      self.hFunction = hFunction
+      self.thread = Timer(self.t,self.handle_function)
+
+   def handle_function(self):
+      self.hFunction()
+      self.thread = Timer(self.t,self.handle_function)
+      self.thread.start()
+
+   def start(self):
+      self.thread.start()
+
+   def cancel(self):
+      self.thread.cancel()
+      
 
 class monSql :
     def __init__ (self, 
@@ -247,7 +265,17 @@ class monSql :
         for i in agregation:
             agr[i[0]] = i[1]
         return agr
-              
+ 
+ 
+    def getMood(self):
+        requete = """select * from Mood order by STR_TO_DATE( Mood.dateSTR , '%Y/%m/%d %T') desc;"""
+        try:
+            self.cursor.execute(requete)
+            mood =(self.cursor.fetchall())
+        except mysql.connector.Error as err:
+            print("Failed retrieving database: {}".format(err))
+        return(mood[:6])
+         
     def create_table(self,
                      tables,
                      http = dbURL ,
@@ -463,19 +491,31 @@ def getDates(delta):
     print(date1)
     print(date2)
     return date1, date2   
-   
+ 
+def test():
+    b=monSql()
+    d = datetime.datetime.now()
+    date = datetime.datetime.now().strftime('%H:%M:%S')
+    print(date)
+    if date == "11:00:00" or date == "11:00:01" :
+        print(b.getMood())
+        time.sleep(5)
+    return
     
 if __name__ == "__main__" :
-    Base = monSql()
+#    Base = monSql()
 #    menu()
-    getDates(delta=3)
+#    getDates(delta=3)
 #    print(date1)
 #    print(date2)
-    res = Base.agregationMood(date2 ,date1)
-    print(res)  
-    #print(mysqlStringPP("aujourd'hui j'ai \ mangé un poisson\n :)"))
+#    res = Base.agregationMood(date2 ,date1)
+#    print(res)  
+#    #print(mysqlStringPP("aujourd'hui j'ai \ mangé un poisson\n :)"))
     
+    t = perpetualTimer(1,test)
+    t.start()   
     
+#    print(Base.getMood())
     
 """
 while 1:
