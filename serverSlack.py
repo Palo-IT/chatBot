@@ -12,6 +12,11 @@ from pyee import EventEmitter
 import sys
 import platform
 import dialogFlow
+from threading import Timer,Thread,Event
+import datetime
+import MYSQLBdd
+import time
+
 
 #VARS
 #get the tokens to get access to Slack, port number and public url to access the server
@@ -24,10 +29,12 @@ for line in open("tokens.txt", "r").readlines():
         serverURL = line[line.index('='):][1:].replace("\n","")
     if "serverPortNumber" in line:
         PORT = int(line[line.index('='):][1:].replace("\n",""))
-        
+    if "channelmood" in line:
+        channelmood = line[line.index('='):][1:].replace("\n","")
 
 app = Flask(__name__)
 convs = {}    
+
 
 #RTM client to send msgs, ie Slack client for Web API requests
 slack_client = SlackClient(SLACK_BOT_TOKEN)
@@ -42,6 +49,43 @@ class DialogSlack(dialogFlow.Dialog):
         else:
             slack_client.api_call("chat.postMessage", channel = self.channel, text=message, attachments=attachments)
 
+
+class MoodSlack(dialogFlow.Dialog):
+    def __init__(self, channel, publique,t):
+      self.t=t
+      self.thread = Timer(self.t,self.handle_function)
+      self.channel = channelmood
+      
+    def test(self):
+        date = datetime.datetime.now().strftime('%H:%M:%S')
+        print(date)
+        if date == "23:17:00" or date == "23:17:01" :
+#              b=MYSQLBdd.monSql()
+#              print(b.getMood())
+              print("ça marche")
+              self.sendMSG(message="ça marche")
+              time.sleep(5)
+        return      
+      
+    def handle_function(self):
+      self.test()
+      self.thread = Timer(self.t,self.handle_function)
+      self.thread.start()
+
+    def start(self):
+      self.thread.start()
+
+    def cancel(self):
+      self.thread.cancel()     
+
+    def sendMSG(self, message = '', attachments = None, private = 0,  user= None):
+        print(message, private, attachments)
+        slack_client.api_call("chat.postMessage", channel = self.channel, text=message, attachments=attachments)
+        
+     
+convs[channelmood] = MoodSlack(channelmood, 1,1)         
+convs[channelmood].start()  
+             
 
 #Functions
 """
@@ -187,7 +231,8 @@ def privateOrNot(channel):
 def findMemberName(id):
     return slack_client.api_call("users.info", user = id)["user"]["name"]	
 
-if __name__ == "__main__":
+if __name__ == "__main__":    
     print("Flask server running on {}".format( PORT))
     print("public access on {}".format( serverURL))
     app.run(port = PORT)
+    

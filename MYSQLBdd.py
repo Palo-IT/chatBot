@@ -95,23 +95,23 @@ tables ["Image"] = (
             " PRIMARY KEY (`id`)"
             ") ENGINE=InnoDB"    )
 
-class perpetualTimer():
-
-   def __init__(self,t,hFunction):
-      self.t=t
-      self.hFunction = hFunction
-      self.thread = Timer(self.t,self.handle_function)
-
-   def handle_function(self):
-      self.hFunction()
-      self.thread = Timer(self.t,self.handle_function)
-      self.thread.start()
-
-   def start(self):
-      self.thread.start()
-
-   def cancel(self):
-      self.thread.cancel()
+#class perpetualTimer():
+#
+#      self.t=t
+#   def __init__(self,t,hFunction):
+#      self.hFunction = hFunction
+#      self.thread = Timer(self.t,self.handle_function)
+#
+#   def handle_function(self):
+#      self.hFunction()
+#      self.thread = Timer(self.t,self.handle_function)
+#      self.thread.start()
+#
+#   def start(self):
+#      self.thread.start()
+#
+#   def cancel(self):
+#      self.thread.cancel()
       
 
 class monSql :
@@ -497,7 +497,7 @@ def test():
     d = datetime.datetime.now()
     date = datetime.datetime.now().strftime('%H:%M:%S')
     print(date)
-    if date == "11:00:00" or date == "11:00:01" :
+    if date == "22:23:00" or date == "22:23:01" :
         print(b.getMood())
         time.sleep(5)
     return
@@ -513,13 +513,9 @@ if __name__ == "__main__" :
 #    #print(mysqlStringPP("aujourd'hui j'ai \ mangé un poisson\n :)"))
     
     t = perpetualTimer(1,test)
-    t.start()   
+    t.start()
+    
+    print("ok 2248")
     
 #    print(Base.getMood())
     
-"""
-while 1:
-    heure = dat.datetime.now().strftime('%H,%M,%S')
-    if heure == "11,00,00" or heure =="16,00,00":
-        agregationMood(date1,date2)
-"""

@@ -1,6 +1,7 @@
 #Credentials for the slack api#
 SLACK_VERIFICATION_TOKEN =uXad2WrJTvE805uvx703ztWE
 SLACK_BOT_TOKEN =xoxb-294373068482-1wMQ7fBxfCRqGPZJYUpILObH
+channelmood =C8WBA8UUV
 
 #Information for the server back-end#
 serverURL =https://8558cba0.ngrok.io

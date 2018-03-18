@@ -104,12 +104,14 @@ class Dialog:
                 
             answerAttachment = self.getCookie()
             
-        if '#mood' in lastMSG.split():
-            if '#daily' in lastMSG.split():
-                return self.getHumeur(range = "daily")
-            
-            if '#weekly' in lastMSG.split():
-                return self.getHumeur("weekly")
+            if '#mood' in lastMSG.split():
+                if '#daily' in lastMSG.split():
+                    answerText = "Mood"
+                    answerAttachment = self.getHumeur("daily")
+               
+                if '#weekly' in lastMSG.split():
+                    answerText = "Mood"
+                    answerAttachment = self.getHumeur("weekly")
             
         
         if lastMSG == '#logs':
@@ -135,7 +137,7 @@ class Dialog:
             
         if range == "weekly":
             rangeDays =joursAvant(today, 7)
-            
+        
         #print(rangeDays)
             
         #df = df.drop[[df.date not in rangeDays]]
@@ -146,64 +148,13 @@ class Dialog:
         
         
         
-        """
-        moods = [mood for mood in bddConn.getRes("Mood")]
-        #print(moods)
-        moods = moods[1:]
-        #print(moods)
-        dictH = {}
-        today = datetime.datetime.now().replace(hour=0, minute=0, second=0, microsecond=0).strftime('%m/%d/%Y')       
-        #print(today)
-        if range == "daily":
-            rangeDays = [today]
-            
-        if range == "weekly":
-            rangeDays = septDernierjours(today)
-        
-        #print(rangeDays)
-        hums = ['super','genial','pas terrible','pas bien','moyen']
-        for hum in hums:
-            dictH[hum] = 0
-        
-        for mood in moods:
-            print(mood)
-            hum = mood[2]
-            day = mood[5]#.strftime('%m/%d/%Y')
-            print(day)
-            dayt = day[:-8]
-            dayt = dayt[5:] + dayt[:4]
-            dayt = dayt.replace(' ','/').replace('-', '/')
-            print(dayt)
-            #dayt.replace()
-            
-            try:
-                dayt = datetime.datetime.strptime(day, '%m/%d/%Y').replace(hour=0, minute=0, second=0, microsecond=0)
-                #print(type(dayt))
-                dayt = dayt.strftime('%m/%d/%Y')
-                #print(type(dayt))
-            except:
-                pass
-            
-            #print("days" , day, dayt, today)
-            if hum in hums:
-                if dayt in rangeDays:
-                    #print (dayt)
-                    dictH[hum] += 1
-                    
-        if len(rangeDays) == 1:
-            return ("humeurs pour le jour : {} \n".format(rangeDays[0]) + str(dictH))
-        return ("humeurs pour l'intervalle : {} a {} \n".format(rangeDays[0], rangeDays[-1]) + str(dictH))
-    """
-        
-        
-        
     def saveHumeur(self, user, humeur, intensite, humeurStr, date):
         conn = MYSQLBdd.monSql()
         liste_item = ['user', 'humeur', 'intensite', 'humeurSTR', 'dateStr']
         liste_value = [user, humeur, intensite, humeurStr, date]
         conn.insert_IntoTable("Mood" , liste_item , liste_value)
         conn.close()
-        return 1  
+        return 1    
     
     def getCookie(self):
         attachment = None
@@ -221,8 +172,20 @@ class Dialog:
         print(attachment)
         return attachment
             
-        
-        
+    def getHumeur(self, delta):
+        conn = MYSQLBdd.monSql() 
+        if delta == "daily":
+            rangeDays = MYSQLBdd.getDates(1)
+            res = conn.agregationMood(rangeDays[1] , rangeDays[0])
+            attachment = boutons.attachMood(rangeDays , res)
+        if delta == "weekly":
+            rangeDays = MYSQLBdd.getDates(7)
+            res = conn.agregationMood(rangeDays[1] , rangeDays[0])
+            attachment = boutons.attachMood(rangeDays , res)
+        conn.close()        
+        return attachment      
+     
+     
 def chooseRandom(liste):
     return liste[randint(0, len(liste)-1)]
 
@@ -252,6 +215,7 @@ if __name__ == "__main__":
     #print(cb.getHumeur("weekly"))
     cb.getCookie()
     #cb.getHumeur("weekly")
+    
 
 
 

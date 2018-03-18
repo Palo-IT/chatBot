@@ -10,42 +10,42 @@ button1 = [
             [
         {
             "text": "Choisis ton intensité !",
-            "fallback": "Disons: Super, génial, moyen, ok, pas terrible, pas bien",
+            "fallback": "Disons: Heureux, Serein, Surpris, Stressé, En colère",
             "callback_id": "humeur_type",
             "color": "#3AA3E3",
             "attachment_type": "default",
             "actions": [
                 {
                     "name": "humeur",
-                    "text": " Super :smiley:",
+                    "text": " Heureux :smiley:",
                     "type": "button",                  
-                    "value": "super"
+                    "value": "heureux"
                     
                 },
                 {
                     "name": "humeur",
-                    "text": "génial :blush:",
+                    "text": "Serein :relaxed:",
                     "type": "button",
-                    "value": "genial"
+                    "value": "serein"
                 },
                 {
                     "name": "humeur",
-                    "text": "Moyen :flushed:",
+                    "text": "Surpris :flushed:",
                     "type": "button",
-                    "value": "moyen"
+                    "value": "surpris"
                 },
        
                 {
                     "name": "humeur",
-                    "text": "Pas terrible :unamused:",
+                    "text": "Stressé :worried:",
                     "type": "button",
-                    "value": "pas terrible"
+                    "value": "stressé"
                  },
                  {
                     "name": "humeur",
-                    "text": "Pas bien :weary:",
+                    "text": "En colère :angry:",
                     "type": "button",
-                    "value": "pas bien"
+                    "value": "en colère"
                  }
                 
                 
@@ -108,43 +108,46 @@ button2 = [
     ]
             ]
 
+def attachMood(dates , agrMood):
+ 
+    titre = "humeur des palowan du {} au {}".format(dates[1], dates[0])
+    attach =  [
+                    {
+                            "title": titre,
+                            "fields": [
+                                    {
+                                        "title": "Heureux",
+                                        "value": str(agrMood["heureux"]),
+                                        "short": "true"
+                                    },
+                                    
+                                    {
+                                        "title": "Serein",
+                                        "value": str(agrMood["serein"]),
+                                        "short": "true"
+                                    },
+                                    {
+                                        "title": "Surpris",
+                                        "value": str(agrMood["surpris"]),
+                                        "short": "true"
+                                    },
+                                            
+                                    {
+                                        "title": "Stressé",
+                                        "value": str(agrMood["stressé"]),
+                                        "short": "true"
+                                    },
+                                    {
+                                        "title": "En colère",
+                                        "value": str(agrMood["en colère"]),
+                                        "short": "true"
+                                    }
+                                ]
+                            }
+                        ]
+    return attach
 
 
-def attachMood():
-{
-    "attachments": [
-        {
-            "title": "humeur de la journée",
-            "fields": [
-                {
-                    "title": "Bien",
-                    "value": "80 %",
-                    "short": "true"
-                },
-                {
-                    "title": "Génial",
-                    "value": "10 %",
-                    "short": "true"
-                },
-    {
-                    "title": "Pas terrible",
-                    "value": "2%",
-                    "short": "true"
-                },
-    {
-                    "title": "Pas bien",
-                    "value": "2%",
-                    "short": "true"
-                },
-    {
-                    "title": "Pas bien",
-                    "value": "2%",
-                    "short": "true"
-                }
-            ]
-        }
-    ]
-}
 
 
 
