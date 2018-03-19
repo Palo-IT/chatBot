@@ -42,10 +42,8 @@ slack_client = SlackClient(SLACK_BOT_TOKEN)
 #Overide Conversation object to send messages with slack api
 class DialogSlack(dialogFlow.Dialog):
     def sendMSG(self, message = '', attachments = None, private = 0,  user= None):
-        print(message, private, attachments)
         if private:
             slack_client.api_call("chat.postEphemeral", channel = self.channel, text=message, attachments=attachments, user= user)
-            print("private")
         else:
             slack_client.api_call("chat.postMessage", channel = self.channel, text=message, attachments=attachments)
 
@@ -55,10 +53,14 @@ class MoodSlack(dialogFlow.Dialog):
       self.t=t
       self.thread = Timer(self.t,self.handle_function)
       self.channel = channelmood
-      
-    def test(self):
+    
+    def incoming(self, event_data):
+        answerText = "Et si nous allions discuter en privé ;)... \nj'ai plein de choses à te raconter,\n envoie moi un message !\(en bas à gauche :p )"
+        slack_client.api_call("chat.postEphemeral", channel = self.channel, text=answerText)    
+        return (None , None , None , None)
+    
+    def test(self): 
         date = datetime.datetime.now().strftime('%H:%M:%S')
-        print(date)
         if date == "23:17:00" or date == "23:17:01" :
 #              b=MYSQLBdd.monSql()
 #              print(b.getMood())
@@ -87,14 +89,7 @@ convs[channelmood] = MoodSlack(channelmood, 1,1)
 convs[channelmood].start()  
              
 
-#Functions
-"""
-def sendMSG(channel, text, attachments = None):
-    if attachments == None:
-        slack_client.api_call("chat.postMessage", channel = channel, text=text)
-    else:
-        slack_client.api_call("chat.postMessage", channel = channel, text=text, attachments=attachments)
-"""
+
 
 
 #For handling buttons clicked
@@ -105,18 +100,7 @@ def message_actions():
     handleIncoming(form_json)
     return ""
 
-"""
-def handle_action(action_data):
-    # Check to see what the user's selection was and update the message
-    
-    #idButton = action_data['actions'][0]["name"]
-    choice = action_data["actions"][0]["value"]
-    author = action_data['user']['id']
-    channel = action_data['channel']['id']
-    time =  action_data['message_ts']   
-    (answer, attachments) = convs[channel].newMSG(choice, processTime(time), findMemberName(author))
-    sendMSG(channel, answer, attachments)    
-"""
+
 
 #for listening for messages
 @app.route("/slack/events", methods=["POST"])
@@ -163,22 +147,7 @@ def listenerMSG():
         handleIncoming(event_data)
 
     return "OK"
-"""
-if event_data["event"]["type"] == "message" and event_data["event"].get("subtype") is None:
-def handle_message(event_data):
-    author = event_data['event']['user']
-    message = event_data['event']['text']
-    channel = event_data['event']['channel']
-    time = event_data['event']['ts']
 
-    
-    if channel not in convs.keys():
-        isPublic = int(privateOrNot(channel))
-        convs[channel] = dialogFlow.Dialog(channel, isPublic)
-    (answer, attachments) = convs[channel].newMSG(message, processTime(time), findMemberName(author))
-    sendMSG(channel, answer, attachments)    
-    return "ok"
-"""
 
 def handleIncoming(event_data):
     #let's get the json informations from slack, identify type of event and build a short json info to pass to bot
@@ -213,10 +182,11 @@ def handleIncoming(event_data):
         return 'ok'
     
     print("event")
-    print(event)
+
     if channel not in convs.keys():
         isPublic = int(privateOrNot(channel))
         convs[channel] = DialogSlack(channel, isPublic)     
+
     (message, attachments , private, author) = convs[channel].incoming(event)
     convs[channel].sendMSG(message, attachments , private, author )   
     return 'ok'    

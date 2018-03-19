@@ -104,14 +104,14 @@ class Dialog:
                 
             answerAttachment = self.getCookie()
             
-            if '#mood' in lastMSG.split():
-                if '#daily' in lastMSG.split():
-                    answerText = "Mood"
-                    answerAttachment = self.getHumeur("daily")
+        if '#mood' in lastMSG.split():
+            if '#daily' in lastMSG.split():
+                answerText = "Mood"
+                answerAttachment = self.getHumeur("daily")
                
-                if '#weekly' in lastMSG.split():
-                    answerText = "Mood"
-                    answerAttachment = self.getHumeur("weekly")
+            if '#weekly' in lastMSG.split():
+                answerText = "Mood"
+                answerAttachment = self.getHumeur("weekly")
             
         
         if lastMSG == '#logs':
@@ -125,28 +125,7 @@ class Dialog:
         self.dialog.append([answerText, answerTime, 'BOT'])
         return (answerText, answerAttachment, answerPrivate, answerAuth)
  
-    
-    def getHumeur(self, range = "daily", hour =None):
-        conn = MYSQLBdd.monSql()
-        df = pd.DataFrame(data=[mood[1:] for mood in conn.getItemIntoTable("Mood")], columns = ["user", "humeur", "intensite", "humeurStr", "date"])
-        conn.close()
-        
-        today = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
-        if range == "daily":
-            rangeDays = [today]
-            
-        if range == "weekly":
-            rangeDays =joursAvant(today, 7)
-        
-        #print(rangeDays)
-            
-        #df = df.drop[[df.date not in rangeDays]]
-        
-        #[user, humeur, intensite, humeurStr, date]
-        #print(df)
-        return "ok"
-        
-        
+                    
         
     def saveHumeur(self, user, humeur, intensite, humeurStr, date):
         conn = MYSQLBdd.monSql()

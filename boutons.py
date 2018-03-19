@@ -108,46 +108,60 @@ button2 = [
     ]
             ]
 
+#def attachMood(dates , agrMood):
+# 
+#    titre = "humeur des palowan du {} au {}".format(dates[1], dates[0])
+#    attach =  [
+#                    {
+#                            "title": titre,
+#                            "fields": [
+#                                    {
+#                                        "title": "Heureux",
+#                                        "value": str(agrMood["heureux"]),
+#                                        "short": "true"
+#                                    },
+#                                    
+#                                    {
+#                                        "title": "Serein",
+#                                        "value": str(agrMood["serein"]),
+#                                        "short": "true"
+#                                    },
+#                                    {
+#                                        "title": "Surpris",
+#                                        "value": str(agrMood["surpris"]),
+#                                        "short": "true"
+#                                    },
+#                                            
+#                                    {
+#                                        "title": "Stressé",
+#                                        "value": str(agrMood["stressé"]),
+#                                        "short": "true"
+#                                    },
+#                                    {
+#                                        "title": "En colère",
+#                                        "value": str(agrMood["en colère"]),
+#                                        "short": "true"
+#                                    }
+#                                ]
+#                            }
+#                        ]
+#    return attach
+
 def attachMood(dates , agrMood):
- 
     titre = "humeur des palowan du {} au {}".format(dates[1], dates[0])
     attach =  [
                     {
                             "title": titre,
-                            "fields": [
-                                    {
-                                        "title": "Heureux",
-                                        "value": str(agrMood["heureux"]),
-                                        "short": "true"
-                                    },
-                                    
-                                    {
-                                        "title": "Serein",
-                                        "value": str(agrMood["serein"]),
-                                        "short": "true"
-                                    },
-                                    {
-                                        "title": "Surpris",
-                                        "value": str(agrMood["surpris"]),
-                                        "short": "true"
-                                    },
-                                            
-                                    {
-                                        "title": "Stressé",
-                                        "value": str(agrMood["stressé"]),
-                                        "short": "true"
-                                    },
-                                    {
-                                        "title": "En colère",
-                                        "value": str(agrMood["en colère"]),
-                                        "short": "true"
-                                    }
-                                ]
-                            }
-                        ]
+                            "fields":  []
+                        }
+                    ]
+    for key, val in agrMood.items():
+        dic = {}
+        dic["title"] = key
+        dic["value"] = val
+        dic["short"] = "true"
+        attach[0]["fields"].append(dic)
     return attach
-
-
 
 
 
@@ -168,13 +182,37 @@ def makeCake(kind, res):
     title = ''
     text = ''
     image_url = ''
+    actions = ''
     
     if kind == "Blague":
         text = res[1]
+        text = text.replace('\\n', '\n')
         
     elif kind == "Devinette":
-        title = res[1]
-        text = res[2]
+        return [
+        {
+            "text": res[1],
+            "fallback": "You are unable to choose a game",
+            "color": "#3AA3E3",
+            "attachment_type": "default",
+            "actions": [
+                {
+                    "name": "game",
+                    "text": "Reponse",
+                    "type": "button",
+                    "value": None,
+                    "confirm": {
+                        "title": "",
+                        "text": res[2],
+                        "ok_text": "Je savais !",
+                        "dismiss_text": "Je saurais la prochaine"
+                    }
+                }
+            ]
+        }
+    ]
+
+        
         
     elif kind == "Video":
         title = res[2]
@@ -182,10 +220,9 @@ def makeCake(kind, res):
         
     elif kind == "Image":
         image_url = res[2]
-        
         if image_url[-2:] == "/r":
-             image_url= image_url[-2:]
-            
+            image_url = image_url[-2:] 
+        
         title = res[1]
         
         
@@ -200,6 +237,7 @@ def makeCake(kind, res):
             "title": title,
             "text": text, 
             "image_url": image_url,
+            "actions" : actions
         }]
         
         
