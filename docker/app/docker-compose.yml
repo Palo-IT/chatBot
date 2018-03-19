@@ -1,0 +1,45 @@
+version: "3"
+services:
+    db:
+        image: mysql:5.7
+        ports:
+            - 3306:3306
+        volumes:
+            - db-data:/var/lib/mysql
+            - ../..:/data  
+        networks:
+            - db_nw       
+        environment:
+            MYSQL_ROOT_PASSWORD: root_pwd
+            MYSQL_DATABASE: db_chatbot
+            MYSQL_USER: db_chatbot
+            MYSQL_PASSWORD: db_chatbot_pwd
+    chatbot:
+        tty: true
+        build: .
+        volumes:
+            - ../..:/home/chatbot
+        networks:
+            - db_nw
+            - web_nw
+        depends_on:
+            - db
+    nginx:
+        image: "nginx:1.13.5"
+        ports:
+            - "8080:80"
+        volumes:
+            - ./conf.d:/etc/nginx/conf.d
+        networks:
+            - web_nw
+        depends_on: 
+            - chatbot
+volumes:
+  app:
+  db-data:
+    driver: local
+networks:
+  db_nw:
+    driver: bridge
+  web_nw:
+    driver: bridge
