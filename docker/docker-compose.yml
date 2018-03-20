@@ -6,7 +6,7 @@ services:
             - 3306:3306
         volumes:
             - db-data:/var/lib/mysql
-            - ../..:/data  
+            - ..:/data  
         environment:
             MYSQL_ROOT_PASSWORD: root_pwd
             MYSQL_DATABASE: db_chatbot
@@ -14,19 +14,14 @@ services:
             MYSQL_PASSWORD: db_chatbot_pwd
     chatbot:
         tty: true
-        build: .
-        ports:
-            - 3001:3001
+        build: ./web
         volumes:
-            - ../..:/home/chatbot
+            - ..:/home/chatbot
     nginx:
-        image: "nginx:1.13.5"
+        build: ./nginx
         ports:
             - "80:80"
-        volumes:
-            - ./conf.d:/etc/nginx/conf.d
-        links:
-            - chatbot
+            - "443:443"
         depends_on: 
             - chatbot
 volumes:
