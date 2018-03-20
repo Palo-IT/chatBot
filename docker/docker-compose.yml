@@ -20,8 +20,7 @@ services:
     nginx:
         build: ./nginx
         ports:
-            - "80:80"
-            - "443:443"
+            - "81:80"
         depends_on: 
             - chatbot
 volumes:
