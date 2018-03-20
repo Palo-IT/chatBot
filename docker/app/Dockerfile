@@ -10,5 +10,4 @@ RUN pip install gunicorn Flask pyee slackclient mysql_connector pandas
 #serveur web HTTP WSGI
 COPY gunicorn.conf /etc/supervisor/conf.d/gunicorn.conf
 
-EXPOSE 3001
 CMD ["/usr/bin/supervisord", "-n"]
