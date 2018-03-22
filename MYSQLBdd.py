@@ -249,7 +249,23 @@ class monSql :
             print(val)            
             self.cnx.commit()
         except :
-            print("syntax invalid")    
+            print("syntax invalid")   
+            
+            
+    def sommeMood(self , date1 ,date2):       
+        requete = """select count(*) from Mood as m 
+        WHERE STR_TO_DATE( m.dateSTR , '%Y/%m/%d %T') BETWEEN '{}' AND '{}'
+        ;""".format(date1, date2)
+        try:
+            
+            print(requete)
+            self.cursor.execute(requete)
+            somme =(self.cursor.fetchall())
+            print(somme)
+        except mysql.connector.Error as err:
+            print("Failed retrieving database: {}".format(err))
+        return somme[0][0]
+    
     
     def agregationMood(self, date1, date2):
         agr = {}
@@ -492,15 +508,7 @@ def getDates(delta):
     print(date2)
     return date1, date2   
  
-def test():
-    b=monSql()
-    d = datetime.datetime.now()
-    date = datetime.datetime.now().strftime('%H:%M:%S')
-    print(date)
-    if date == "22:23:00" or date == "22:23:01" :
-        print(b.getMood())
-        time.sleep(5)
-    return
+
     
 if __name__ == "__main__" :
 #    Base = monSql()

@@ -47,34 +47,39 @@ class DialogSlack(dialogFlow.Dialog):
         else:
             slack_client.api_call("chat.postMessage", channel = self.channel, text=message, attachments=attachments)
 
-
 class MoodSlack(dialogFlow.Dialog):
     def __init__(self, channel, publique,t):
+      #dialogFlow.Dialog.__init__(self, channel, publique)
       self.t=t
-      self.thread = Timer(self.t,self.handle_function)
       self.channel = channelmood
     
     def incoming(self, event_data):
         answerText = "Et si nous allions discuter en privé ;)... \nj'ai plein de choses à te raconter,\n envoie moi un message !\(en bas à gauche :p )"
         slack_client.api_call("chat.postEphemeral", channel = self.channel, text=answerText)    
         return (None , None , None , None)
-    
+      
     def test(self): 
+        
         date = datetime.datetime.now().strftime('%H:%M:%S')
-        if date == "23:17:00" or date == "23:17:01" :
-#              b=MYSQLBdd.monSql()
-#              print(b.getMood())
-              print("ça marche")
-              self.sendMSG(message="ça marche")
-              time.sleep(5)
-        return      
+        #print(date)
+        if self.last < "11:00:00" <= date:
+              self.sendMSG(message="Mood de la matiné" , attachments = self.getHumeur("daily"))
+              #time.sleep(5)
+        if self.last < "16:00:00" <= date:
+              self.sendMSG(message="Mood de fin d'aprem" , attachments = self.getHumeur("daily"))
+              #time.sleep(5)
+        self.last = date
+        return
+        
       
     def handle_function(self):
       self.test()
       self.thread = Timer(self.t,self.handle_function)
       self.thread.start()
-
+      
     def start(self):
+      self.last = datetime.datetime.now().strftime('%H:%M:%S')
+      self.thread = Timer(self.t,self.handle_function)
       self.thread.start()
 
     def cancel(self):
@@ -82,12 +87,16 @@ class MoodSlack(dialogFlow.Dialog):
 
     def sendMSG(self, message = '', attachments = None, private = 0,  user= None):
         print(message, private, attachments)
+        print(0)
         slack_client.api_call("chat.postMessage", channel = self.channel, text=message, attachments=attachments)
         
-     
-convs[channelmood] = MoodSlack(channelmood, 1,1)         
-convs[channelmood].start()  
-             
+
+#convs[channelmood] = MoodSlack(channelmood, 1,1)         
+#convs[channelmood].start()
+mood = MoodSlack(channelmood, 1,1)
+mood.start()
+#print(convs) 
+#convs[channelmood].cancel()
 
 
 
@@ -204,5 +213,8 @@ def findMemberName(id):
 if __name__ == "__main__":    
     print("Flask server running on {}".format( PORT))
     print("public access on {}".format( serverURL))
-    app.run(port = PORT)
-    
+    try :
+        app.run(port = PORT)
+    finally:
+        mood.cancel()
+        

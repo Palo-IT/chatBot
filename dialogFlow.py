@@ -21,9 +21,10 @@ class Dialog:
     
     def __init__(self, channel, publique):
         self.channel = channel
-        self.publique = 0 
+        """self.publique = 0 
         if publique == 1:
-            self.publique = 1          
+            self.publique = 1"""
+        self.publique = 1 if publique == 1 else 0
         self.dialog = []
         self.humeur = 0
         self.intensite = 0
@@ -113,6 +114,7 @@ class Dialog:
                 answerText = "Mood"
                 answerAttachment = self.getHumeur("weekly")
             
+            
         
         if lastMSG == '#logs':
             answerText = str(self.dialog)
@@ -151,18 +153,25 @@ class Dialog:
         print(attachment)
         return attachment
             
-    def getHumeur(self, delta):
+    def getHumeur(self,delta):
         conn = MYSQLBdd.monSql() 
         if delta == "daily":
             rangeDays = MYSQLBdd.getDates(1)
             res = conn.agregationMood(rangeDays[1] , rangeDays[0])
-            attachment = boutons.attachMood(rangeDays , res)
+            resSomme = conn.sommeMood(rangeDays[1] , rangeDays[0])
+            for i in res:
+                res[i] = str(round((res[i]/resSomme)*100,1)) +"%"
+                attachment = boutons.attachMood(rangeDays , res)
+                
         if delta == "weekly":
             rangeDays = MYSQLBdd.getDates(7)
             res = conn.agregationMood(rangeDays[1] , rangeDays[0])
-            attachment = boutons.attachMood(rangeDays , res)
-        conn.close()        
-        return attachment      
+            resSomme = conn.sommeMood(rangeDays[1] , rangeDays[0])
+            for i in res:
+                res[i] = str(round((res[i]/resSomme)*100,1)) +"%"
+                attachment = boutons.attachMood(rangeDays , res)
+                conn.close()        
+        return attachment               
      
      
 def chooseRandom(liste):
@@ -170,7 +179,7 @@ def chooseRandom(liste):
 
 def joursAvant(date, deltaAvant):
     madate = datetime.datetime.strptime(date, '%Y/%m/%d %H:%M:%S').date()
-    liste_jour = [(madate - dat.timedelta(i)) for i in range(deltaAvant)]
+    liste_jour = [(madate - datetime.timedelta(i)) for i in range(deltaAvant)]
     liste_format = [i.strftime('%Y/%m/%d') for i in liste_jour]
     return liste_format   
 
