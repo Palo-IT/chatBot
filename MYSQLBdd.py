@@ -508,8 +508,6 @@ def getDates(delta):
         date2=d2.strftime('%Y/%m/%d %H:%M:%S')
     return date1, date2 
 
- 
-
     
 if __name__ == "__main__" :
 #    Base = monSql()
@@ -520,9 +518,6 @@ if __name__ == "__main__" :
 #    res = Base.agregationMood(date2 ,date1)
 #    print(res)  
 #    #print(mysqlStringPP("aujourd'hui j'ai \ mangé un poisson\n :)"))
-    
-    t = perpetualTimer(1,test)
-    t.start()
     
     print("ok 2248")
     

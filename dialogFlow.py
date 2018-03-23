@@ -8,13 +8,12 @@ Created on Sat Feb 17 19:44:24 2018
 
 listRes = ['Citation', 'Blague', 'Devinette', 'Image', 'Video']
 
-#import bddConn
 import boutons
 from random import randint
 import datetime
 import MYSQLBdd
 import pandas as pd
-
+import random
 
 
 class Dialog:
@@ -176,6 +175,17 @@ class Dialog:
         return attachment               
      
      
+    def getRandomhour():
+        a=random.randint(0,18000)
+        h=int(a/3600) + 9
+        res_h = a%3600
+        m=int(res_h/60)
+        s=res_h%60
+        randomhour=str(str(h) + ":" + str(m) + ":" + str(s))
+        return randomhour     
+     
+     
+     
 def chooseRandom(liste):
     return liste[randint(0, len(liste)-1)]
 
@@ -190,7 +200,7 @@ def processTime(ts):
      
 
 if __name__ == "__main__":
-    cb = Dialog('None', 1)
+#    cb = Dialog('None', 1)
     #print(str(cb.getHumeur()))
     #☼cb.getHumeurs()
     #print(cb.getHumeurs())
@@ -203,9 +213,9 @@ if __name__ == "__main__":
     #print(chooseRandom(["a", "b", "c"]))
     #print(cb.getCookie("all"))
     #print(cb.getHumeur("weekly"))
-    cb.getCookie()
+#    cb.getCookie()
     #cb.getHumeur("weekly")
-
+    print("done")
 
 
 

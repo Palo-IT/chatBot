@@ -47,15 +47,18 @@ class DialogSlack(dialogFlow.Dialog):
         else:
             slack_client.api_call("chat.postMessage", channel = self.channel, text=message, attachments=attachments)
 
+
+
+randomhour=dialogFlow.Dialog.getRandomhour()
+print(randomhour)
+
 class MoodSlack(dialogFlow.Dialog):
     def __init__(self, channel, publique,t):
       #dialogFlow.Dialog.__init__(self, channel, publique)
       self.t=t
       self.channel = channelmood
-    
       
-    def test(self): 
-        
+    def test(self):        
         date = datetime.datetime.now().strftime('%H:%M:%S')
         print(date)
         if self.last < "11:00:00" <= date:
@@ -66,6 +69,8 @@ class MoodSlack(dialogFlow.Dialog):
         if self.last < "16:26:00" <= date:
               self.sendMSG(message="Mood " , attachments = self.getHumeur("daily"))
               #time.sleep(5)
+        if self.last < randomhour <= date:
+              self(self.channel,1)
         self.last = date
         return
         
