@@ -147,8 +147,8 @@ button2 = [
 #                        ]
 #    return attach
 
-def attachMood(dates , agrMood):
-    titre = "humeur des palowan du {} au {}".format(dates[1], dates[0])
+def attachMoodDaily(agrMood):
+    titre = "humeur du jour"
     attach =  [
                     {
                             "title": titre,
@@ -163,6 +163,21 @@ def attachMood(dates , agrMood):
         attach[0]["fields"].append(dic)
     return attach
 
+def attachMoodWeekly(agrMood):
+    titre = "humeur de la semaine"
+    attach =  [
+                    {
+                            "title": titre,
+                            "fields":  []
+                        }
+                    ]
+    for key, val in agrMood.items():
+        dic = {}
+        dic["title"] = key
+        dic["value"] = val
+        dic["short"] = "true"
+        attach[0]["fields"].append(dic)
+    return attach
 
 
 def attachImg(fallback= "", title = "", title_link = "", text = "", image_url = "", color = ""):

@@ -53,20 +53,18 @@ class MoodSlack(dialogFlow.Dialog):
       self.t=t
       self.channel = channelmood
     
-    def incoming(self, event_data):
-        answerText = "Et si nous allions discuter en privé ;)... \nj'ai plein de choses à te raconter,\n envoie moi un message !\(en bas à gauche :p )"
-        slack_client.api_call("chat.postEphemeral", channel = self.channel, text=answerText)    
-        return (None , None , None , None)
       
     def test(self): 
         
         date = datetime.datetime.now().strftime('%H:%M:%S')
-        #print(date)
+        print(date)
         if self.last < "11:00:00" <= date:
-              self.sendMSG(message="Mood de la matiné" , attachments = self.getHumeur("daily"))
+              self.sendMSG(message="Mood" , attachments = self.getHumeur("daily"))
+        if self.last < "12:00:00" <= date:
+              self.sendMSG(message="Mood " , attachments = self.getHumeur("weekly"))
               #time.sleep(5)
-        if self.last < "16:00:00" <= date:
-              self.sendMSG(message="Mood de fin d'aprem" , attachments = self.getHumeur("daily"))
+        if self.last < "16:26:00" <= date:
+              self.sendMSG(message="Mood " , attachments = self.getHumeur("daily"))
               #time.sleep(5)
         self.last = date
         return

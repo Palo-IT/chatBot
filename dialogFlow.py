@@ -21,6 +21,7 @@ class Dialog:
     
     def __init__(self, channel, publique):
         self.channel = channel
+        self.bool = 1
         """self.publique = 0 
         if publique == 1:
             self.publique = 1"""
@@ -52,7 +53,7 @@ class Dialog:
         lastTime = self.dialog[-1][1]
         lastAuth = self.dialog[-1][2]
         
-        answerText = lastMSG
+        answerText = "Merci d'avoir participé à notre questionnaire sur le Mood. Pour afficher le mood du jour, entrez #mood #daily et pour la semaine entrez #mood #weekly"
         answerAttachment = None
         answerPrivate = 0
         answerTime = datetime.datetime.strftime(datetime.datetime.now(), '%Y/%m/%d %H:%M:%S')
@@ -66,7 +67,8 @@ class Dialog:
             answerAttachment = boutons.button1[1]
         
         elif self.publique :
-            answerText = "Et si nous allions discuter en privé ;)... \nj'ai plein de choses à te raconter,\n envoie moi un message !\(en bas à gauche :p )"
+            answerText = "Et si nous allions discuter en privé ;)... "
+
             answerPrivate = 1
             answerAuth = lastAuth
             
@@ -91,16 +93,16 @@ class Dialog:
             print(lastAuth, self.humeur, self.intensite, self.humeurString ,lastTime)
             self.saveHumeur(lastAuth, self.humeur, self.intensite, self.humeurString ,lastTime)
             
-            if self.humeur == "super" or self.humeur == "genial":
+            if self.humeur == "heureux" or self.humeur == "serein":
                 answerText = "Ok, c'est parti pour une super journée alors :joy:"
         
-            elif self.humeur == "moyen":
+            elif self.humeur == "surpris":
                 answerText = "Courage ça va bien se passer :grinning:"
             
-            elif self.humeur == "pas terrible" :
+            elif self.humeur == "stressé" :
                 answerText = "Courage! Ca va bien se passer :relieved:"
             
-            elif self.humeur == "pas bien" :
+            elif self.humeur == "en colère" :
                 answerText = "Je suis là si tu as besoin de parler :hushed:"
                 
             answerAttachment = self.getCookie()
@@ -161,7 +163,7 @@ class Dialog:
             resSomme = conn.sommeMood(rangeDays[1] , rangeDays[0])
             for i in res:
                 res[i] = str(round((res[i]/resSomme)*100,1)) +"%"
-                attachment = boutons.attachMood(rangeDays , res)
+                attachment = boutons.attachMoodDaily(res)
                 
         if delta == "weekly":
             rangeDays = MYSQLBdd.getDates(7)
@@ -169,7 +171,7 @@ class Dialog:
             resSomme = conn.sommeMood(rangeDays[1] , rangeDays[0])
             for i in res:
                 res[i] = str(round((res[i]/resSomme)*100,1)) +"%"
-                attachment = boutons.attachMood(rangeDays , res)
+                attachment = boutons.attachMoodWeekly(res)
                 conn.close()        
         return attachment               
      
@@ -203,32 +205,10 @@ if __name__ == "__main__":
     #print(cb.getHumeur("weekly"))
     cb.getCookie()
     #cb.getHumeur("weekly")
-    
 
 
 
-"""Nathi
-## Dates Nathi
-def septDernierjours(date):
-    madate = datetime.datetime.strptime(date, '%Y-%m-%d')
-    liste_jour = [madate]
-    liste_format = []
-    for i in range(6):
-        tmp = madate - dat.timedelta(1)
-        liste_jour.append(tmp)
-        madate =tmp
-    for i in liste_jour:
-       liste_format.append(i.strftime('%m/%d/%Y'))
-    return liste_format    
-    """
 
-"""
-def afficherMood():
-    while 1:
-        heure = dat.datetime.now().strftime('%H,%M,%S')
-        if heure == "11,00,00" or heure =="16,00,00":
-"""          
-        
 
 
 #datetime.now()

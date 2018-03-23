@@ -499,14 +499,15 @@ def menu():
    
 def getDates(delta):
     d = datetime.datetime.now()
-    print(d)
-    d2=d- datetime.timedelta(days=delta)
-    print(d2)
+    d1=d.strftime('%Y/%m/%d')
     date1 = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
-    date2=d2.strftime('%Y/%m/%d %H:%M:%S')
-    print(date1)
-    print(date2)
-    return date1, date2   
+    if delta==1:
+        date2=str(d1 + " " + "00:00:00")
+    else:
+        d2=d- datetime.timedelta(days=delta)
+        date2=d2.strftime('%Y/%m/%d %H:%M:%S')
+    return date1, date2 
+
  
 
     

@@ -4,7 +4,7 @@ SLACK_BOT_TOKEN =xoxb-316123563520-uJk8qDRTYVTk3fykvR67mtxN
 channelmood =D9BJEFXGW
 
 #Information for the server back-end#
-serverURL =https://9984f501.ngrok.io
+serverURL =https://c055d09d.ngrok.io
 serverPortNumber =3000
 
 #Credentials for the database connexion#
