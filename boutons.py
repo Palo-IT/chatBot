@@ -108,44 +108,8 @@ button2 = [
     ]
             ]
 
-#def attachMood(dates , agrMood):
-# 
-#    titre = "humeur des palowan du {} au {}".format(dates[1], dates[0])
-#    attach =  [
-#                    {
-#                            "title": titre,
-#                            "fields": [
-#                                    {
-#                                        "title": "Heureux",
-#                                        "value": str(agrMood["heureux"]),
-#                                        "short": "true"
-#                                    },
-#                                    
-#                                    {
-#                                        "title": "Serein",
-#                                        "value": str(agrMood["serein"]),
-#                                        "short": "true"
-#                                    },
-#                                    {
-#                                        "title": "Surpris",
-#                                        "value": str(agrMood["surpris"]),
-#                                        "short": "true"
-#                                    },
-#                                            
-#                                    {
-#                                        "title": "Stressé",
-#                                        "value": str(agrMood["stressé"]),
-#                                        "short": "true"
-#                                    },
-#                                    {
-#                                        "title": "En colère",
-#                                        "value": str(agrMood["en colère"]),
-#                                        "short": "true"
-#                                    }
-#                                ]
-#                            }
-#                        ]
-#    return attach
+
+
 
 def attachMoodDaily(agrMood):
     titre = "humeur du jour"
@@ -162,6 +126,7 @@ def attachMoodDaily(agrMood):
         dic["short"] = "true"
         attach[0]["fields"].append(dic)
     return attach
+
 
 def attachMoodWeekly(agrMood):
     titre = "humeur de la semaine"
@@ -228,7 +193,6 @@ def makeCake(kind, res):
     ]
 
         
-        
     elif kind == "Video":
         title = res[2]
         text = res[1]
@@ -249,6 +213,7 @@ def makeCake(kind, res):
     
     attach = [
             {
+            "color": "#3AA3E3",
             "title": title,
             "text": text, 
             "image_url": image_url,

@@ -41,36 +41,36 @@ slack_client = SlackClient(SLACK_BOT_TOKEN)
 
 #Overide Conversation object to send messages with slack api
 class DialogSlack(dialogFlow.Dialog):
-    def sendMSG(self, message = '', attachments = None, private = 0,  user= None):
-        if private:
-            slack_client.api_call("chat.postEphemeral", channel = self.channel, text=message, attachments=attachments, user= user)
+    def sendMSG(self, message = None, attachments = None, private = 0,  user= None):
+        if message != None :
+            if private:
+                slack_client.api_call("chat.postEphemeral", channel = self.channel, text=message, attachments=attachments, user= user)
+            else:
+                slack_client.api_call("chat.postMessage", channel = self.channel, text=message, attachments=attachments)
         else:
-            slack_client.api_call("chat.postMessage", channel = self.channel, text=message, attachments=attachments)
-
+            return
 
 
 randomhour=dialogFlow.Dialog.getRandomhour()
-print(randomhour)
+#print(randomhour)
 
 class MoodSlack(dialogFlow.Dialog):
     def __init__(self, channel, publique,t):
-      #dialogFlow.Dialog.__init__(self, channel, publique)
       self.t=t
       self.channel = channelmood
       
     def test(self):        
         date = datetime.datetime.now().strftime('%H:%M:%S')
-        print(date)
-        if self.last < "11:00:00" <= date:
+        #print(date)
+        if self.last < "01:24:00" <= date:
               self.sendMSG(message="Mood" , attachments = self.getHumeur("daily"))
-        if self.last < "12:00:00" <= date:
+              
+        if self.last < "01:24:10" <= date:
               self.sendMSG(message="Mood " , attachments = self.getHumeur("weekly"))
-              #time.sleep(5)
+              
         if self.last < "16:26:00" <= date:
               self.sendMSG(message="Mood " , attachments = self.getHumeur("daily"))
-              #time.sleep(5)
-        if self.last < randomhour <= date:
-              self(self.channel,1)
+              
         self.last = date
         return
         
@@ -90,7 +90,6 @@ class MoodSlack(dialogFlow.Dialog):
 
     def sendMSG(self, message = '', attachments = None, private = 0,  user= None):
         print(message, private, attachments)
-        print(0)
         slack_client.api_call("chat.postMessage", channel = self.channel, text=message, attachments=attachments)
         
 

@@ -21,9 +21,6 @@ class Dialog:
     def __init__(self, channel, publique):
         self.channel = channel
         self.bool = 1
-        """self.publique = 0 
-        if publique == 1:
-            self.publique = 1"""
         self.publique = 1 if publique == 1 else 0
         self.dialog = []
         self.humeur = 0
@@ -31,6 +28,7 @@ class Dialog:
         self.humeurString = None
         self.demandPrivate = 0      
         self.state = None
+        self.chaine = datetime.date.today()
     
     def incoming(self, event_data):
         print('incoming')
@@ -47,27 +45,26 @@ class Dialog:
         print("message")  
         
     def chooseAnswer(self):
-        print("chooseAnswer")
         lastMSG = self.dialog[-1][0]
         lastTime = self.dialog[-1][1]
         lastAuth = self.dialog[-1][2]
-        
-        answerText = "Merci d'avoir participé à notre questionnaire sur le Mood. Pour afficher le mood du jour, entrez #mood #daily et pour la semaine entrez #mood #weekly"
+        answerText = None
         answerAttachment = None
         answerPrivate = 0
         answerTime = datetime.datetime.strftime(datetime.datetime.now(), '%Y/%m/%d %H:%M:%S')
         answerAuth = lastAuth
-
         
+            
         if self.humeur == 0 and not self.publique :
             self.state = "waitingHumeur"
             self.humeur = "unknown"
             answerText = boutons.button1[0]
             answerAttachment = boutons.button1[1]
+            
         
-        elif self.publique :
+        elif self.publique and (self.chaine ) == datetime.date.today() :
             answerText = "Et si nous allions discuter en privé ;)... "
-
+            self.chaine= datetime.date.today() + datetime.timedelta(days=1)
             answerPrivate = 1
             answerAuth = lastAuth
             
@@ -83,11 +80,9 @@ class Dialog:
             self.state = "waitingHumeurExplanation"
             answerText = "Est ce que tu peux me dire pourquoi ??"
         
-        elif self.state == "waitingHumeurExplanation":
+        elif self.state == "waitingHumeurExplanation":     
             self.humeurString = lastMSG
-            self.state = None
-            
-            #append the mood in db
+            self.state = "explanationGived"
             print('saving')
             print(lastAuth, self.humeur, self.intensite, self.humeurString ,lastTime)
             self.saveHumeur(lastAuth, self.humeur, self.intensite, self.humeurString ,lastTime)
@@ -106,7 +101,10 @@ class Dialog:
                 
             answerAttachment = self.getCookie()
             
-        if '#mood' in lastMSG.split():
+        elif self.state == "explanationGived" and not self.publique: 
+            answerText = "Merci d'avoir participé à notre questionnaire sur le Mood. Pour afficher le mood du jour, entrez #mood #daily et pour la semaine entrez #mood #weekly \n je peux aussi te donner un cookie essaye et tape #cookie"
+            
+        if '#mood' in lastMSG.split() and not self.publique:
             if '#daily' in lastMSG.split():
                 answerText = "Mood"
                 answerAttachment = self.getHumeur("daily")
@@ -120,7 +118,7 @@ class Dialog:
         if lastMSG == '#logs':
             answerText = str(self.dialog)
             
-        if lastMSG == '#cookie':
+        if lastMSG == '#cookie' and not self.publique :
             answerText = "Miam"
             answerAttachment = self.getCookie()
         
@@ -200,25 +198,6 @@ def processTime(ts):
      
 
 if __name__ == "__main__":
-#    cb = Dialog('None', 1)
-    #print(str(cb.getHumeur()))
-    #☼cb.getHumeurs()
-    #print(cb.getHumeurs())
-    #date = "2018-02-01"
-    #liste = septDernierjours(date)
-    #print(type(liste))
-    #print(liste)
-    #for res in cb.getCookie("all"):
-    #    print(res)
-    #print(chooseRandom(["a", "b", "c"]))
-    #print(cb.getCookie("all"))
-    #print(cb.getHumeur("weekly"))
-#    cb.getCookie()
-    #cb.getHumeur("weekly")
-    print("done")
+    print("Not this file !")
 
 
-
-
-
-#datetime.now()
