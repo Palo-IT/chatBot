@@ -16,6 +16,7 @@ from threading import Timer,Thread,Event
 import datetime
 import MYSQLBdd
 import time
+import boutons
 
 
 #VARS
@@ -36,21 +37,55 @@ app = Flask(__name__)
 convs = {}    
 
 
-#RTM client to send msgs, ie Slack client for Web API requests
+#RTM client to send msgs/, ie Slack client for Web API requests
 slack_client = SlackClient(SLACK_BOT_TOKEN)
 
 #Overide Conversation object to send messages with slack api
 class DialogSlack(dialogFlow.Dialog):
-    def sendMSG(self, message = '', attachments = None, private = 0,  user= None):
-        if private:
-            slack_client.api_call("chat.postEphemeral", channel = self.channel, text=message, attachments=attachments, user= user)
-        else:
-            slack_client.api_call("chat.postMessage", channel = self.channel, text=message, attachments=attachments)
+    
+    
+    def handle_function(self):
+      self.test()
+      self.thread = Timer(self.t,self.handle_function)
+      self.thread.start()
+      
+      
+    def start(self):
+      self.last = datetime.datetime.now().strftime('%H:%M:%S')
+      self.thread = Timer(self.t,self.handle_function)
+      self.thread.start()
+
+
+    def cancel(self):
+      self.thread.cancel()     
+    
+    def test(self):      
+                
+        date = datetime.datetime.now().strftime('%H:%M:%S')
+        print(self.randomHour)
+        #"16:00:00"
+        # self.randomHour
+        if self.last < "22:19:30"  <= date:
+            self.state = "waitingHumeur"
+            self.sendMSG(message = boutons.button1[0] , attachments = boutons.button1[1] )
+        self.last= date
+        #self.randomHour = dialogFlow.getRandomhour()
+        
+        return
+
+    
+        
+    def sendMSG(self, message = None, attachments = None, private = 0,  user= None):
+        if message != None:
+            if private:
+                slack_client.api_call("chat.postEphemeral", channel = self.channel, text=message, attachments=attachments, user= user)
+            else:
+                slack_client.api_call("chat.postMessage", channel = self.channel, text=message, attachments=attachments)
+        else :
+            return 
 
 
 
-randomhour=dialogFlow.Dialog.getRandomhour()
-print(randomhour)
 
 class MoodSlack(dialogFlow.Dialog):
     def __init__(self, channel, publique,t):
@@ -60,17 +95,17 @@ class MoodSlack(dialogFlow.Dialog):
       
     def test(self):        
         date = datetime.datetime.now().strftime('%H:%M:%S')
-        print(date)
+        #print(date)
         if self.last < "11:00:00" <= date:
               self.sendMSG(message="Mood" , attachments = self.getHumeur("daily"))
         if self.last < "12:00:00" <= date:
               self.sendMSG(message="Mood " , attachments = self.getHumeur("weekly"))
               #time.sleep(5)
-        if self.last < "16:26:00" <= date:
+        if self.last < "16:00:00" <= date:
               self.sendMSG(message="Mood " , attachments = self.getHumeur("daily"))
               #time.sleep(5)
-        if self.last < randomhour <= date:
-              self(self.channel,1)
+              
+
         self.last = date
         return
         
@@ -92,12 +127,21 @@ class MoodSlack(dialogFlow.Dialog):
         print(message, private, attachments)
         print(0)
         slack_client.api_call("chat.postMessage", channel = self.channel, text=message, attachments=attachments)
-        
+  
+    
+    
+    
+    
+    
 
+
+       
+        
 #convs[channelmood] = MoodSlack(channelmood, 1,1)         
 #convs[channelmood].start()
 mood = MoodSlack(channelmood, 1,1)
 mood.start()
+
 #print(convs) 
 #convs[channelmood].cancel()
 
@@ -197,10 +241,16 @@ def handleIncoming(event_data):
 
     if channel not in convs.keys():
         isPublic = int(privateOrNot(channel))
-        convs[channel] = DialogSlack(channel, isPublic)     
+        convs[channel] = DialogSlack(channel, isPublic , 1)
+        convs[channel].start()
+        print("creation d'un Thread")
+            
+        
 
     (message, attachments , private, author) = convs[channel].incoming(event)
     convs[channel].sendMSG(message, attachments , private, author )   
+    
+
     return 'ok'    
 
 #Donne la liste de tout les channels utilisé par le user exepté ceux qui sont dans l onglet app
@@ -219,5 +269,7 @@ if __name__ == "__main__":
     try :
         app.run(port = PORT)
     finally:
+        for i,j in convs.items():
+            convs[i].cancel()
         mood.cancel()
         

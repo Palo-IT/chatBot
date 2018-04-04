@@ -18,9 +18,10 @@ import random
 
 class Dialog:
     
-    def __init__(self, channel, publique):
+    def __init__(self, channel, publique , t):
         self.channel = channel
         self.bool = 1
+        self.chaine= 0
         """self.publique = 0 
         if publique == 1:
             self.publique = 1"""
@@ -31,6 +32,9 @@ class Dialog:
         self.humeurString = None
         self.demandPrivate = 0      
         self.state = None
+        self.t = t
+        self.randomHour= "not possible" if self.publique == 1 else getRandomhour()
+        
     
     def incoming(self, event_data):
         print('incoming')
@@ -45,6 +49,8 @@ class Dialog:
           
     def sendMSG(self, message, attachment, private, user):
         print("message")  
+    
+    
         
     def chooseAnswer(self):
         print("chooseAnswer")
@@ -52,7 +58,8 @@ class Dialog:
         lastTime = self.dialog[-1][1]
         lastAuth = self.dialog[-1][2]
         
-        answerText = "Merci d'avoir participé à notre questionnaire sur le Mood. Pour afficher le mood du jour, entrez #mood #daily et pour la semaine entrez #mood #weekly"
+        
+        answerText = None
         answerAttachment = None
         answerPrivate = 0
         answerTime = datetime.datetime.strftime(datetime.datetime.now(), '%Y/%m/%d %H:%M:%S')
@@ -64,12 +71,17 @@ class Dialog:
             self.humeur = "unknown"
             answerText = boutons.button1[0]
             answerAttachment = boutons.button1[1]
+        elif self.publique == 0  and self.state == "explanationGived" :
+            answerText = "Merci d'avoir participé à notre questionnaire sur le Mood. Pour afficher le mood du jour, entrez #mood #daily et pour la semaine entrez #mood #weekly"
         
-        elif self.publique :
+        elif self.publique  and self.chaine == 0:
             answerText = "Et si nous allions discuter en privé ;)... "
-
+            self.chaine = 1
             answerPrivate = 1
             answerAuth = lastAuth
+            
+            
+            
             
         elif self.state == "waitingHumeur":
             self.humeur = lastMSG
@@ -86,7 +98,8 @@ class Dialog:
         elif self.state == "waitingHumeurExplanation":
             self.humeurString = lastMSG
             self.state = None
-            
+            self.state = "explanationGived"
+            self.randomHour = getRandomhour()
             #append the mood in db
             print('saving')
             print(lastAuth, self.humeur, self.intensite, self.humeurString ,lastTime)
@@ -175,14 +188,7 @@ class Dialog:
         return attachment               
      
      
-    def getRandomhour():
-        a=random.randint(0,18000)
-        h=int(a/3600) + 9
-        res_h = a%3600
-        m=int(res_h/60)
-        s=res_h%60
-        randomhour=str(str(h) + ":" + str(m) + ":" + str(s))
-        return randomhour     
+   
      
      
      
@@ -198,24 +204,30 @@ def joursAvant(date, deltaAvant):
 def processTime(ts):
     return datetime.datetime.fromtimestamp(float(ts)).strftime('%Y-%m-%d %H:%M:%S')   
      
+def getRandomhour():
+    a=random.randint(0,18000)
+    h=int(a/3600) + 9
+    if h<10:
+        heure=str("0" + str(h))
+    else:
+        heure=str(h)
+    res_h = a%3600
+    m=int(res_h/60)
+    if m<10:
+        minute=str("0" + str(m))
+    else:
+        minute=str(m)
+    s=res_h%60
+    if s<10:
+        seconde=str("0" + str(s))
+    else:
+        seconde=str(s)
+    randomhour=str(heure + ":" + minute + ":" + seconde)
+    print(randomhour)
+    return randomhour
 
-if __name__ == "__main__":
-#    cb = Dialog('None', 1)
-    #print(str(cb.getHumeur()))
-    #☼cb.getHumeurs()
-    #print(cb.getHumeurs())
-    #date = "2018-02-01"
-    #liste = septDernierjours(date)
-    #print(type(liste))
-    #print(liste)
-    #for res in cb.getCookie("all"):
-    #    print(res)
-    #print(chooseRandom(["a", "b", "c"]))
-    #print(cb.getCookie("all"))
-    #print(cb.getHumeur("weekly"))
-#    cb.getCookie()
-    #cb.getHumeur("weekly")
-    print("done")
+if __name__ == "__main__": 
+    print("Not this file to execute please try serverSlack.py")
 
 
 

@@ -510,16 +510,8 @@ def getDates(delta):
 
     
 if __name__ == "__main__" :
-#    Base = monSql()
-#    menu()
-#    getDates(delta=3)
-#    print(date1)
-#    print(date2)
-#    res = Base.agregationMood(date2 ,date1)
-#    print(res)  
-#    #print(mysqlStringPP("aujourd'hui j'ai \ mangé un poisson\n :)"))
+
     
-    print("ok 2248")
-    
-#    print(Base.getMood())
+    print("Not this file to execute please try serverSlack.py")
+
     

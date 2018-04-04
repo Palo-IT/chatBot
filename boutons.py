@@ -166,7 +166,7 @@ def attachMoodDaily(agrMood):
 def attachMoodWeekly(agrMood):
     titre = "humeur de la semaine"
     attach =  [
-                    {
+                    {       "color": "#3AA3E3",
                             "title": titre,
                             "fields":  []
                         }
