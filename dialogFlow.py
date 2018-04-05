@@ -21,11 +21,12 @@ class Dialog:
     def __init__(self, channel, publique , t):
         self.channel = channel
         self.bool = 1
-        self.chaine= 0
+        self.chaine= datetime.date.today()
         """self.publique = 0 
         if publique == 1:
             self.publique = 1"""
-        self.publique = 1 if publique == 1 else 0
+        self.publique = 1 if publique == 1 else 0        
+        self.users = {} if publique == 1 else None      
         self.dialog = []
         self.humeur = 0
         self.intensite = 0
@@ -45,6 +46,10 @@ class Dialog:
             msg = event_data['value']
         time = datetime.datetime.fromtimestamp(float(event_data['time'])).strftime('%Y/%m/%d %H:%M:%S')
         self.dialog.append([msg, time, event_data['author']])
+        if self.publique == 1:
+            if event_data['author']  not in self.users:
+                self.users[event_data['author']] = self.chaine
+        
         return self.chooseAnswer()
           
     def sendMSG(self, message, attachment, private, user):
@@ -73,10 +78,14 @@ class Dialog:
             answerAttachment = boutons.button1[1]
         elif self.publique == 0  and self.state == "explanationGived" :
             answerText = "Merci d'avoir participé à notre questionnaire sur le Mood. Pour afficher le mood du jour, entrez #mood #daily et pour la semaine entrez #mood #weekly"
+      
         
-        elif self.publique  and self.chaine == 0:
+        elif self.publique and ( self.users[lastAuth] == datetime.date.today() ):
+            
+            print(self.users[lastAuth])
             answerText = "Et si nous allions discuter en privé ;)... "
-            self.chaine = 1
+            self.users[lastAuth]  = datetime.date.today() + datetime.timedelta(days=1)
+            print(self.users[lastAuth])
             answerPrivate = 1
             answerAuth = lastAuth
             

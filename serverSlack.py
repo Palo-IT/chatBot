@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+        # -*- coding: utf-8 -*-
 """
 Created on Fri Feb 16 01:41:43 2018
 
@@ -12,11 +12,9 @@ from pyee import EventEmitter
 import sys
 import platform
 import dialogFlow
-from threading import Timer,Thread,Event
-import datetime
-import MYSQLBdd
-import time
+from threading import Timer
 import boutons
+import datetime
 
 
 #VARS
@@ -268,7 +266,7 @@ if __name__ == "__main__":
     try :
         app.run(port = PORT)
     finally:
-        for i,j in convs.items():
+        for i in convs:
             convs[i].cancel()
         mood.cancel()
         
