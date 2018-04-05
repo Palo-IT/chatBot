@@ -62,7 +62,6 @@ class DialogSlack(dialogFlow.Dialog):
     def test(self):      
                 
         date = datetime.datetime.now().strftime('%H:%M:%S')
-        print(self.randomHour)
         #"16:00:00"
         # self.randomHour
         if self.last < "22:19:30"  <= date:

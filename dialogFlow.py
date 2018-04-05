@@ -133,7 +133,7 @@ class Dialog:
         if lastMSG == '#logs':
             answerText = str(self.dialog)
             
-        if lastMSG == '#cookie':
+        if lastMSG == '#cookie' and self.publique!= 1:
             answerText = "Miam"
             answerAttachment = self.getCookie()
         
@@ -164,7 +164,6 @@ class Dialog:
             print('erreur sur la ressource :')
             print(res)
             return self.getCookie()
-        print(attachment)
         return attachment
             
     def getHumeur(self,delta):
@@ -223,7 +222,6 @@ def getRandomhour():
     else:
         seconde=str(s)
     randomhour=str(heure + ":" + minute + ":" + seconde)
-    print(randomhour)
     return randomhour
 
 if __name__ == "__main__": 
