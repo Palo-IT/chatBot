@@ -37,7 +37,7 @@ print(dbURL, schName, userName, PORT, pswDB)
 """
 
 
-        #tables c'est un dictionnaire contenant le nom des tables en clé et leurs descriptions en valeurs
+#tables c'est un dictionnaire contenant le nom des tables en clé et leurs descriptions en valeurs
 tables = {}
 
 
@@ -95,23 +95,7 @@ tables ["Image"] = (
             " PRIMARY KEY (`id`)"
             ") ENGINE=InnoDB"    )
 
-#class perpetualTimer():
-#
-#      self.t=t
-#   def __init__(self,t,hFunction):
-#      self.hFunction = hFunction
-#      self.thread = Timer(self.t,self.handle_function)
-#
-#   def handle_function(self):
-#      self.hFunction()
-#      self.thread = Timer(self.t,self.handle_function)
-#      self.thread.start()
-#
-#   def start(self):
-#      self.thread.start()
-#
-#   def cancel(self):
-#      self.thread.cancel()
+
       
 
 class monSql :

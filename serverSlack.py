@@ -38,8 +38,11 @@ convs = {}
 #RTM client to send msgs/, ie Slack client for Web API requests
 slack_client = SlackClient(SLACK_BOT_TOKEN)
 
-#Overide Conversation object to send messages with slack api
+
 class DialogSlack(dialogFlow.Dialog):
+
+#Overide Conversation object to send messages with slack api
+#Permet de Plus l'envoi automatique de la demande d'humeur a une  certaine aléatoire dans la jounée    
     
     
     def handle_function(self):
@@ -59,15 +62,19 @@ class DialogSlack(dialogFlow.Dialog):
     
     def test(self):      
                 
-        date = datetime.datetime.now().strftime('%H:%M:%S')
-        #"16:00:00"
-        # self.randomHour
-        if self.last < "22:19:30"  <= date:
+        date = datetime.datetime.now().strftime('%H:%M:%S') 
+        
+        if (self.last < self.randomHour <= date) and isWeekDay() and self.asked == 0: #genere la demande d'humeur de maniere aleatoire dans la tranche horaire [9:00-14h00]
             self.state = "waitingHumeur"
             self.sendMSG(message = boutons.button1[0] , attachments = boutons.button1[1] )
+            
+            
+        if self.last < "00:00:00" <= date : # a minuit tous les jours les variable decisionnel en lien avec le mood sont remise a 0 
+            self.asked = 0
+            self.humeur = 0
+            self.state = None
         self.last= date
-        #self.randomHour = dialogFlow.getRandomhour()
-        
+       
         return
 
     
@@ -85,22 +92,27 @@ class DialogSlack(dialogFlow.Dialog):
 
 
 class MoodSlack(dialogFlow.Dialog):
+    #class permettant l'affichage du Mood des palowans a 11h et 16h pour la journée et a  12h pour la semaine (7jours)
+    #channelmood defini dans le token       
     def __init__(self, channel, publique,t):
-      #dialogFlow.Dialog.__init__(self, channel, publique)
       self.t=t
       self.channel = channelmood
       
     def test(self):        
         date = datetime.datetime.now().strftime('%H:%M:%S')
-        #print(date)
-        if self.last < "11:00:00" <= date:
+
+        if (self.last < "11:00:00" <= date )and isWeekDay():
+            
               self.sendMSG(message="Mood" , attachments = self.getHumeur("daily"))
-        if self.last < "12:00:00" <= date:
+              
+        if (self.last < "12:00:00" <= date )and isWeekDay():
+            
               self.sendMSG(message="Mood " , attachments = self.getHumeur("weekly"))
-              #time.sleep(5)
-        if self.last < "16:00:00" <= date:
+
+        if (self.last < "16:00:00" <= date )and isWeekDay():
+            
               self.sendMSG(message="Mood " , attachments = self.getHumeur("daily"))
-              #time.sleep(5)
+
               
 
         self.last = date
@@ -121,8 +133,7 @@ class MoodSlack(dialogFlow.Dialog):
       self.thread.cancel()     
 
     def sendMSG(self, message = '', attachments = None, private = 0,  user= None):
-        print(message, private, attachments)
-        print(0)
+ 
         slack_client.api_call("chat.postMessage", channel = self.channel, text=message, attachments=attachments)
   
     
@@ -134,13 +145,10 @@ class MoodSlack(dialogFlow.Dialog):
 
        
         
-#convs[channelmood] = MoodSlack(channelmood, 1,1)         
-#convs[channelmood].start()
+
 mood = MoodSlack(channelmood, 1,1)
 mood.start()
 
-#print(convs) 
-#convs[channelmood].cancel()
 
 
 
@@ -260,6 +268,17 @@ def privateOrNot(channel):
 def findMemberName(id):
     return slack_client.api_call("users.info", user = id)["user"]["name"]	
 
+
+def isWeekDay():
+    
+    weekno = datetime.datetime.today().weekday()
+    if weekno<5:
+        return True   
+    else:
+        return False
+        
+        
+        
 if __name__ == "__main__":    
     print("Flask server running on {}".format( PORT))
     print("public access on {}".format( serverURL))

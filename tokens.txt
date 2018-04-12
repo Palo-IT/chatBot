@@ -1,10 +1,10 @@
 #Credentials for the slack api#
 SLACK_VERIFICATION_TOKEN =uD4al7EFj0hX2GSutNm6hmIH
 SLACK_BOT_TOKEN =xoxb-316123563520-uJk8qDRTYVTk3fykvR67mtxN
-channelmood =D9BJEFXGW
+channelmood =C9TDTNK0U
 
 #Information for the server back-end#
-serverURL =https://c055d09d.ngrok.io
+serverURL =https://91fa6e3a.ngrok.io
 serverPortNumber =3000
 
 #Credentials for the database connexion#

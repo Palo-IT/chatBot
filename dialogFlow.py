@@ -12,19 +12,15 @@ import boutons
 from random import randint
 import datetime
 import MYSQLBdd
-import pandas as pd
 import random
 
 
 class Dialog:
-    
+    # Objet Dialog a chaque utilisateur un objet dialogue et crée et ainsi que pour chaque chaine (Slack) utilisant le bot
     def __init__(self, channel, publique , t):
         self.channel = channel
         self.bool = 1
         self.chaine= datetime.date.today()
-        """self.publique = 0 
-        if publique == 1:
-            self.publique = 1"""
         self.publique = 1 if publique == 1 else 0        
         self.users = {} if publique == 1 else None      
         self.dialog = []
@@ -35,9 +31,11 @@ class Dialog:
         self.state = None
         self.t = t
         self.randomHour= "not possible" if self.publique == 1 else getRandomhour()
+        self.asked = 0
         
     
     def incoming(self, event_data):
+        #fonction incoming permet d'analyser un evenement qui se produit sur les channel afin d'assigner des veleurs au attibut d'un objet Dialog
         print('incoming')
         msg = ''
         if event_data['type'] == "message":
@@ -53,11 +51,13 @@ class Dialog:
         return self.chooseAnswer()
           
     def sendMSG(self, message, attachment, private, user):
+        #fct inutile mes permets de verifier l'intégrité des classe héritant de la class dialog
         print("message")  
     
     
         
     def chooseAnswer(self):
+        #fonction qui choisis parmis l'evenement qui viens de se passer une réponse adéquat
         print("chooseAnswer")
         lastMSG = self.dialog[-1][0]
         lastTime = self.dialog[-1][1]
@@ -76,39 +76,39 @@ class Dialog:
             self.humeur = "unknown"
             answerText = boutons.button1[0]
             answerAttachment = boutons.button1[1]
+            
         elif self.publique == 0  and self.state == "explanationGived" :
             answerText = "Merci d'avoir participé à notre questionnaire sur le Mood. Pour afficher le mood du jour, entrez #mood #daily et pour la semaine entrez #mood #weekly"
       
         
         elif self.publique and ( self.users[lastAuth] == datetime.date.today() ):
             
-            print(self.users[lastAuth])
             answerText = "Et si nous allions discuter en privé ;)... "
             self.users[lastAuth]  = datetime.date.today() + datetime.timedelta(days=1)
-            print(self.users[lastAuth])
             answerPrivate = 1
             answerAuth = lastAuth
             
             
             
             
-        elif self.state == "waitingHumeur":
+        elif self.state == "waitingHumeur" and self.asked == 0:
             self.humeur = lastMSG
             self.state = "waitingIntensite"
             answerText = boutons.button2[0]
             answerAttachment = boutons.button2[1]
             
         
-        elif self.state == "waitingIntensite":
+        elif self.state == "waitingIntensite" and self.asked == 0:
             self.intensite = lastMSG
             self.state = "waitingHumeurExplanation"
             answerText = "Est ce que tu peux me dire pourquoi ??"
         
-        elif self.state == "waitingHumeurExplanation":
+        elif self.state == "waitingHumeurExplanation" and self.asked == 0:
             self.humeurString = lastMSG
             self.state = None
             self.state = "explanationGived"
             self.randomHour = getRandomhour()
+            self.asked = 1
             #append the mood in db
             print('saving')
             print(lastAuth, self.humeur, self.intensite, self.humeurString ,lastTime)
@@ -128,7 +128,7 @@ class Dialog:
                 
             answerAttachment = self.getCookie()
             
-        if '#mood' in lastMSG.split():
+        if '#mood' in lastMSG.split() and not self.publique:
             if '#daily' in lastMSG.split():
                 answerText = "Mood"
                 answerAttachment = self.getHumeur("daily")
@@ -153,6 +153,7 @@ class Dialog:
                     
         
     def saveHumeur(self, user, humeur, intensite, humeurStr, date):
+        #permet de sauvgarder l'humeur sur la base mySql
         conn = MYSQLBdd.monSql()
         liste_item = ['user', 'humeur', 'intensite', 'humeurSTR', 'dateStr']
         liste_value = [user, humeur, intensite, humeurStr, date]
@@ -161,6 +162,7 @@ class Dialog:
         return 1    
     
     def getCookie(self):
+        # Se connecte a la base de donner pour allé chercher un cookie (Blaque , citation , Image , ...) de maniere aleatoire
         attachment = None
         cat = chooseRandom(listRes)
         conn = MYSQLBdd.monSql()
@@ -176,6 +178,7 @@ class Dialog:
         return attachment
             
     def getHumeur(self,delta):
+        #Se connecte a la base pour renvoyer soit le mood de la semaine, soit de le journée... dépant du parametre delta
         conn = MYSQLBdd.monSql() 
         if delta == "daily":
             rangeDays = MYSQLBdd.getDates(1)
@@ -203,16 +206,9 @@ class Dialog:
 def chooseRandom(liste):
     return liste[randint(0, len(liste)-1)]
 
-def joursAvant(date, deltaAvant):
-    madate = datetime.datetime.strptime(date, '%Y/%m/%d %H:%M:%S').date()
-    liste_jour = [(madate - datetime.timedelta(i)) for i in range(deltaAvant)]
-    liste_format = [i.strftime('%Y/%m/%d') for i in liste_jour]
-    return liste_format   
-
-def processTime(ts):
-    return datetime.datetime.fromtimestamp(float(ts)).strftime('%Y-%m-%d %H:%M:%S')   
      
 def getRandomhour():
+    #return une heure de manière aléatoire fixer entre 9h00 et 14h00 
     a=random.randint(0,18000)
     h=int(a/3600) + 9
     if h<10:
@@ -237,7 +233,3 @@ if __name__ == "__main__":
     print("Not this file to execute please try serverSlack.py")
 
 
-
-
-
-#datetime.now()
