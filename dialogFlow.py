@@ -197,13 +197,18 @@ class Dialog:
         if delta == "daily":
             rangeDays = MYSQLBdd.getDates(1)
             res = conn.agregationMood(rangeDays[1] , rangeDays[0])
+            logging.info("days"+rangeDays[1]+"day0"+rangeDays[0])
             
             resSomme = conn.sommeMood(rangeDays[1] , rangeDays[0])
             for i in res:
                 res[i] = str(round((res[i]/resSomme)*100,1)) +"%"
                 logging.info("res daily"+res[i])
-                attachment = boutons.attachMoodDaily(res)
-                logging.info("reponse"+attachment)
+                try:
+                    
+                    attachment = boutons.attachMoodDaily(res)
+                    logging.info("reponse"+attachment)
+                except Exception as e:
+                    logging.error(str(e))
                 
         if delta == "weekly":
             rangeDays = MYSQLBdd.getDates(7)
