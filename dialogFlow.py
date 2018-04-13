@@ -39,7 +39,7 @@ class Dialog:
         self.t = t
         self.randomHour= "not possible" if self.publique == 1 else getRandomhour()
         self.asked = 0
-        logging.basicConfig(filename ='test', level=logging.INFO, 
+        #logging.basicConfig(filename ='test', level=logging.INFO, 
                             format='[%(levelname)s] %(asctime)s %(message)s',
                             datefmt='%d/%m/%Y %H:%M:%S',)
         
@@ -51,10 +51,10 @@ class Dialog:
         msg = ''
         if event_data['type'] == "message":
             msg = event_data['text']
-            logging.info('text'+msg)
+            #logging.info('text'+msg)
         if event_data['type'] == "buttonClicked":
             msg = event_data['value']
-            logging.info('buttonClicked'+msg)
+            #logging.info('buttonClicked'+msg)
         time = datetime.datetime.fromtimestamp(float(event_data['time'])).strftime('%Y/%m/%d %H:%M:%S')
         self.dialog.append([msg, time, event_data['author']])
         if self.publique == 1:
@@ -145,7 +145,7 @@ class Dialog:
             if '#daily' in lastMSG.split():
                 answerText = "Mood"
                 answerAttachment = self.getHumeur("daily")
-                logging.info("reponse mood daily" + answerAttachment)
+                #logging.info("reponse mood daily" + answerAttachment)
                
             if '#weekly' in lastMSG.split():
                 answerText = "Mood"
@@ -197,18 +197,19 @@ class Dialog:
         if delta == "daily":
             rangeDays = MYSQLBdd.getDates(1)
             res = conn.agregationMood(rangeDays[1] , rangeDays[0])
-            logging.info("days"+rangeDays[1]+"day0"+rangeDays[0])
+            #logging.info("days"+rangeDays[1]+"day0"+rangeDays[0])
             
             resSomme = conn.sommeMood(rangeDays[1] , rangeDays[0])
             for i in res:
                 res[i] = str(round((res[i]/resSomme)*100,1)) +"%"
+                attachment = boutons.attachMoodDaily(res)
+                """
                 logging.info("res daily"+res[i])
                 try:
-                    
-                    attachment = boutons.attachMoodDaily(res)
                     logging.info("reponse"+attachment)
                 except Exception as e:
                     logging.error(str(e))
+                """
                 
         if delta == "weekly":
             rangeDays = MYSQLBdd.getDates(7)
