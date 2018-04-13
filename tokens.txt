@@ -1,12 +1,11 @@
 #Credentials for the slack api#
-SLACK_VERIFICATION_TOKEN =uD4al7EFj0hX2GSutNm6hmIH
-SLACK_BOT_TOKEN =xoxb-316123563520-uJk8qDRTYVTk3fykvR67mtxN
-channelmood =C9TDTNK0U
+SLACK_VERIFICATION_TOKEN =uXad2WrJTvE805uvx703ztWE
+SLACK_BOT_TOKEN =xoxb-294373068482-1wMQ7fBxfCRqGPZJYUpILObH
+channelmood =G5M4ZKS2W
 
 #Information for the server back-end#
-serverURL =https://91fa6e3a.ngrok.io
-serverPortNumber =3000
-
+serverURL =http://193.70.14.209:81
+serverPortNumber =81
 #Credentials for the database connexion#
 dbURL =193.70.14.209
 baseSchemaName =db_chatbot 

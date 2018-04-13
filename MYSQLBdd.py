@@ -241,12 +241,9 @@ class monSql :
         requete = """select count(*) from Mood as m 
         WHERE STR_TO_DATE( m.dateSTR , '%Y/%m/%d %T') BETWEEN '{}' AND '{}'
         ;""".format(date1, date2)
-        try:
-            
-            print(requete)
+        try:          
             self.cursor.execute(requete)
             somme =(self.cursor.fetchall())
-            print(somme)
         except mysql.connector.Error as err:
             print("Failed retrieving database: {}".format(err))
         return somme[0][0]
