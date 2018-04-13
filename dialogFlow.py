@@ -5,6 +5,12 @@ Created on Sat Feb 17 19:44:24 2018
 @author: Administrator
 """
 
+#Ce fichier est centré sur la classe Dialog, qui a pour objectif de gérer une conversation
+#Elle est donc uniquement focalisé sur des problématique de dialogue (étant donné ce qe dit ou fait l'utilisateur, que doit répondre ou envoyer le bot)
+#L'état de la discussion est repéré notamnent par la variable state, qui permet de connaitre le stade de la conversation et ce qu'attend le bot
+#Un historique de la conversation est stocké dans la variable dialog (mais non exporté dans la bdd)
+#Les actions comme un clique sur un bouton sont considérés comme un message, dont le texte est la valeur du bouton cliqué.
+#Selon le statut publique ou non de la conversation, le bot peut avoir affaire a plusieurs utilisateurs différents
 
 listRes = ['Citation', 'Blague', 'Devinette', 'Image', 'Video']
 

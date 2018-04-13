@@ -5,13 +5,14 @@ Created on Mon Feb 26 15:32:58 2018
 @author: Administrator
 """
 
-import time
+#Ce fichier gère toutes les requetes à la base de données
+
+
 import mysql.connector
 from mysql.connector import errorcode
 import csv
 import os
 import datetime
-from threading import Timer,Thread,Event
 
 
 #VARS

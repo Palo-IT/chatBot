@@ -15,3 +15,7 @@ portDB =3308
 passwordDB =db_chatbot_pwd
 
 
+#Ce fichier contient tous les credentials necessaire au fonctionnement du CB
+#A modifier que par les utilisateurs avertis :)
+
+

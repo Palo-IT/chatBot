@@ -5,6 +5,11 @@ Created on Fri Feb 16 01:41:43 2018
 @author: Administrator
 """
 
+#Ce fichier gère la partie serveur du programme
+#Il gère donc la partie Flask qui écoute les informations provenant de l'application Slack
+#Il transmet les informations recus à la partie Chatbot (dialogFlow) et renvoie les messages sur les channels Slack
+
+
 from flask import Flask, request, make_response 
 import json
 from slackclient import SlackClient
@@ -32,6 +37,9 @@ for line in open("tokens.txt", "r").readlines():
         channelmood = line[line.index('='):][1:].replace("\n","")
 
 app = Flask(__name__)
+#dictionnaire stockant les différents channels que le bot écoute
+#le numéro du channel (voir url du channel sur Slack) correspond à la key du dictionnaire, l'item correspondant est un pointeur vers un objet
+# de classe Conversation (voir le fichier dialogFlow).
 convs = {}    
 
 
@@ -111,13 +119,10 @@ class MoodSlack(dialogFlow.Dialog):
 
         if (self.last < "16:00:00" <= date )and isWeekDay():
             
-              self.sendMSG(message="Mood " , attachments = self.getHumeur("daily"))
-
-              
+              self.sendMSG(message="Mood " , attachments = self.getHumeur("daily"))              
 
         self.last = date
-        return
-        
+        return        
       
     def handle_function(self):
       self.test()
@@ -137,19 +142,9 @@ class MoodSlack(dialogFlow.Dialog):
         slack_client.api_call("chat.postMessage", channel = self.channel, text=message, attachments=attachments)
   
     
-    
-    
-    
-    
-
-
-       
-        
-
+#Initialisation de la classe 
 mood = MoodSlack(channelmood, 1,1)
 mood.start()
-
-
 
 
 
@@ -265,12 +260,12 @@ def privateOrNot(channel):
         return True
     return False
 
+#Find the Slack name of a user, given its pseudo
 def findMemberName(id):
     return slack_client.api_call("users.info", user = id)["user"]["name"]	
 
 
 def isWeekDay():
-    
     weekno = datetime.datetime.today().weekday()
     if weekno<5:
         return True   
