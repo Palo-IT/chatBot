@@ -40,8 +40,8 @@ class Dialog:
         self.randomHour= "not possible" if self.publique == 1 else getRandomhour()
         self.asked = 0
         #logging.basicConfig(filename ='test', level=logging.INFO, 
-                            format='[%(levelname)s] %(asctime)s %(message)s',
-                            datefmt='%d/%m/%Y %H:%M:%S',)
+        #                   format='[%(levelname)s] %(asctime)s %(message)s',
+        #                   datefmt='%d/%m/%Y %H:%M:%S',)
         
     
     def incoming(self, event_data):
