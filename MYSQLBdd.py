@@ -1,3 +1,4 @@
+# coding: utf-8
 # -*- coding: utf-8 -*-
 """
 Created on Mon Feb 26 15:32:58 2018
@@ -164,33 +165,29 @@ class monSql :
     
     #insert a row in a table    
     def insert_IntoTable(self ,table , liste_item , liste_value):
-         """print(liste_item)
-         #print(liste_value)
-         #print([type(val) for val in liste_value])
-         """
-         liste_value = [mysqlStringPP(val) if type(val) == str else val for val in liste_value]
-         """print(liste_value)
-         """
-         requete = "INSERT INTO `{}` ".format(table)
-         requete +="("
-         for i in range(len(liste_item)) :
-             if liste_item[-1] == liste_item[i] :
-                 requete = requete +liste_item[-1] 
-             else:
-                 requete = requete + liste_item[i] + ','
-         requete +=") VALUES ("
-         for j in range(len(liste_value)) :
-             if liste_value[j] == liste_value[-1]:
-                 requete = requete + "'" + liste_value[j] + "'"
-             else :
-                 requete = requete + "'" + liste_value[j] + "',"
-         requete += ");"
-         try :
-             self.cursor.execute(requete)
-             print('insertion succed')
-             self.cnx.commit()
+        liste_value = [mysqlStringPP(val) if type(val) == str else val for val in liste_value]
+        """print(liste_value)
+        """
+        requete = "INSERT INTO `{}` ".format(table)
+        requete +="("
+        for i in range(len(liste_item)) :
+            if liste_item[-1] == liste_item[i] :
+                requete = requete +liste_item[-1] 
+            else:
+                requete = requete + liste_item[i] + ','
+        requete +=") VALUES ("
+        for j in range(len(liste_value)) :
+            if liste_value[j] == liste_value[-1]:
+                requete = requete + "'" + liste_value[j] + "'"
+            else :
+                requete = requete + "'" + liste_value[j] + "',"
+        requete += ");"
+        try:
+            self.cursor.execute(requete)
+            print('insertion succed')
+            self.cnx.commit()
              
-         except :
+        except :
              print('insertion error')     
          
 
@@ -294,7 +291,7 @@ class monSql :
                     raise
                 else:
                     print (" Drop ok")
-                    
+
             try:
                 print("Creating table {}: ".format(name))
                 self.cursor.execute(ddl)
@@ -316,7 +313,7 @@ class monSql :
     def importTable(self, csvFile, delimiter, colTypes):      
         tableName = csvFile.split(".")[-2].split("\\")[-1]
         if csvFile.split("\\")[0] not in ['C:', 'H:', 'D:']:
-           csvFile = mysqlStringPP(CWD + '\\' + csvFile)
+            csvFile = mysqlStringPP(CWD + '\\' + csvFile)
         print(csvFile)
               
         #Delete existing tablez       
@@ -390,11 +387,6 @@ def mysqlStringPP(text):
     pattern = re.compile("|".join(rep.keys()))
     return pattern.sub(lambda m: rep[re.escape(m.group(0))], text)
     
- 
-
-
-
-
 def menu():
     print("\nGestion de la base de données:\n")
     print("0: quitter\n1: ajouter un élement dans la base\n2: supprimer un élement de la base\n3: afficher la base\n4: input a direct SQL command (check your syntax!!)\n5: creer ou maj la base de données\n6: importer une table depuis un .csv")
@@ -478,7 +470,6 @@ def menu():
         menu()
         
     menu()
-   
 def getDates(delta):
     d = datetime.datetime.now()
     d1=d.strftime('%Y/%m/%d')

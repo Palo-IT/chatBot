@@ -1,3 +1,4 @@
+# coding: utf-8
 # -*- coding: utf-8 -*-
 """
 Created on Sat Feb 17 19:44:24 2018
@@ -39,9 +40,13 @@ class Dialog:
         self.t = t
         self.randomHour= "not possible" if self.publique == 1 else getRandomhour()
         self.asked = 0
+        self.conn = MYSQLBdd.monSql()
         #logging.basicConfig(filename ='test', level=logging.INFO, 
         #                   format='[%(levelname)s] %(asctime)s %(message)s',
         #                   datefmt='%d/%m/%Y %H:%M:%S',)
+        
+        
+        
         
     
     def incoming(self, event_data):
@@ -168,20 +173,17 @@ class Dialog:
         
     def saveHumeur(self, user, humeur, intensite, humeurStr, date):
         #permet de sauvgarder l'humeur sur la base mySql
-        conn = MYSQLBdd.monSql()
+        
         liste_item = ['user', 'humeur', 'intensite', 'humeurSTR', 'dateStr']
         liste_value = [user, humeur, intensite, humeurStr, date]
-        conn.insert_IntoTable("Mood" , liste_item , liste_value)
-        conn.close()
+        self.conn.insert_IntoTable("Mood" , liste_item , liste_value)
         return 1    
     
     def getCookie(self):
         # Se connecte a la base de donner pour allé chercher un cookie (Blaque , citation , Image , ...) de maniere aleatoire
         attachment = None
         cat = chooseRandom(listRes)
-        conn = MYSQLBdd.monSql()
-        res = conn.getItemIntoTable(cat)
-        conn.close()
+        res = self.conn.getItemIntoTable(cat)
         if len(res) > 0:
             item = res[chooseRandom(range(len(res)))]            
             attachment = boutons.makeCake(cat, item)
@@ -193,13 +195,12 @@ class Dialog:
             
     def getHumeur(self,delta):
         #Se connecte a la base pour renvoyer soit le mood de la semaine, soit de le journée... dépant du parametre delta
-        conn = MYSQLBdd.monSql() 
         if delta == "daily":
             rangeDays = MYSQLBdd.getDates(1)
-            res = conn.agregationMood(rangeDays[1] , rangeDays[0])
+            res = self.conn.agregationMood(rangeDays[1] , rangeDays[0])
             #logging.info("days"+rangeDays[1]+"day0"+rangeDays[0])
             
-            resSomme = conn.sommeMood(rangeDays[1] , rangeDays[0])
+            resSomme = self.conn.sommeMood(rangeDays[1] , rangeDays[0])
             for i in res:
                 res[i] = str(round((res[i]/resSomme)*100,1)) +"%"
                 attachment = boutons.attachMoodDaily(res)
@@ -213,17 +214,15 @@ class Dialog:
                 
         if delta == "weekly":
             rangeDays = MYSQLBdd.getDates(7)
-            res = conn.agregationMood(rangeDays[1] , rangeDays[0])
-            resSomme = conn.sommeMood(rangeDays[1] , rangeDays[0])
+            res = self.conn.agregationMood(rangeDays[1] , rangeDays[0])
+            resSomme = self.conn.sommeMood(rangeDays[1] , rangeDays[0])
             for i in res:
                 res[i] = str(round((res[i]/resSomme)*100,1)) +"%"
-                attachment = boutons.attachMoodWeekly(res)
-                conn.close()        
+                attachment = boutons.attachMoodWeekly(res)       
         return attachment               
      
      
    
-     
      
      
 def chooseRandom(liste):
@@ -254,5 +253,3 @@ def getRandomhour():
 
 if __name__ == "__main__": 
     print("Not this file to execute please try serverSlack.py")
-
-
